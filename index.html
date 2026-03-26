@@ -1,108 +1,765 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>息止めコーチング</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=DM+Mono:wght@400;500&display=swap');
-  :root {
-    --bg:#0d1b2a; --surface:#112236; --surface2:#1a3050; --accent:#4fc3f7; --accent2:#81d4fa;
-    --success:#66bb6a; --warning:#ffa726; --text:#e8f4fd; --text-dim:#7fa8c9; --border:rgba(79,195,247,0.2);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
-  .header{padding:16px 20px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:var(--surface)}
-  .header-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#0077b6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-  .header-title{font-size:16px;font-weight:700;letter-spacing:.02em}.header-sub{font-size:11px;color:var(--text-dim);margin-top:1px}
-  main{flex:1;display:flex;flex-direction:column;padding:16px;gap:14px}
-  .status-card,.wave-section,.stat-card,.sensitivity-row,.mode-row{background:var(--surface);border:1px solid var(--border)}
-  .status-card{border-radius:20px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;overflow:hidden}
-  .status-card::before{content:"";position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(79,195,247,.12) 0%,transparent 70%);pointer-events:none}
-  .phase-label{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
-  .phase-text{font-size:38px;font-weight:900;letter-spacing:-.02em;line-height:1.1;text-align:center}
-  .phase-text.inhale{color:var(--accent)} .phase-text.exhale{color:var(--accent2)} .phase-text.hold{color:var(--success)} .phase-text.idle{color:var(--text-dim)} .phase-text.prepare{color:var(--warning)}
-  .phase-emoji{font-size:32px}
-  .cycle-info{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px;font-size:12px;color:var(--text-dim)}
-  .pill{padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.02)}
-  .hold-timer-wrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:60px;justify-content:center}
-  .hold-timer{font-family:"DM Mono",monospace;font-size:52px;font-weight:500;color:var(--success);letter-spacing:.05em;transition:opacity .3s}
-  .hold-timer.hidden{opacity:0}.hold-timer-label{font-size:12px;color:var(--text-dim);letter-spacing:.08em}
-  .wave-section{border-radius:20px;padding:14px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:200px}
-  .wave-header{display:flex;justify-content:space-between;align-items:center}
-  .wave-title{font-size:12px;color:var(--text-dim);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-  .wave-status-dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim);transition:background .3s}
-  .wave-status-dot.active{background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 1.5s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  canvas{width:100%;flex:1;border-radius:10px;background:var(--bg);display:block;touch-action:none}
-  .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-  .stat-card{border-radius:16px;padding:12px 10px;text-align:center}
-  .stat-value{font-family:"DM Mono",monospace;font-size:24px;font-weight:500;color:var(--accent);line-height:1}
-  .stat-label{font-size:10px;color:var(--text-dim);margin-top:4px;letter-spacing:.06em}
-  .sensitivity-row,.mode-row{border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px}
-  .mode-row{justify-content:space-between}
-  .mode-text{font-size:12px;color:var(--text-dim);line-height:1.5}
-  .toggle{display:inline-flex;align-items:center;gap:8px;user-select:none;font-size:12px;color:var(--text)}
-  .toggle input{display:none}.toggle-track{width:46px;height:28px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);position:relative;transition:background .2s ease}
-  .toggle-thumb{width:22px;height:22px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .2s ease}
-  .toggle input:checked + .toggle-track{background:rgba(79,195,247,.25)} .toggle input:checked + .toggle-track .toggle-thumb{transform:translateX(18px)}
-  .sens-label{font-size:12px;color:var(--text-dim);white-space:nowrap}
-  input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--surface2);outline:none}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer}
-  .sens-val{font-family:"DM Mono",monospace;font-size:13px;color:var(--accent);min-width:24px;text-align:right}
-  .controls{display:flex;gap:12px}.btn{flex:1;padding:16px;border:none;border-radius:16px;font-family:"Noto Sans JP",sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .1s,opacity .2s;letter-spacing:.04em}
-  .btn:active{transform:scale(.96)} .btn-start{background:linear-gradient(135deg,#0077b6,var(--accent));color:#fff}
-  .btn-stop{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border)} .btn:disabled{opacity:.4;cursor:not-allowed}
-  .notice{font-size:10px;color:var(--text-dim);text-align:center;line-height:1.6;padding:0 8px 8px}
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;z-index:100;backdrop-filter:blur(4px)} .modal-overlay.hidden{display:none}
-  .modal{background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;border-top:1px solid var(--border)}
-  .modal h2{font-size:20px;font-weight:700;margin-bottom:12px}.modal p{font-size:14px;color:var(--text-dim);line-height:1.7;margin-bottom:24px}
-  .modal-btn{width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(135deg,#0077b6,var(--accent));color:#fff;font-family:"Noto Sans JP",sans-serif;font-size:16px;font-weight:700;cursor:pointer}
+
+:root {
+–bg: #0d1b2a;
+–surface: #112236;
+–surface2: #1a3050;
+–accent: #4fc3f7;
+–success: #66bb6a;
+–warning: #ffa726;
+–danger: #ef5350;
+–text: #e8f4fd;
+–text-dim: #7fa8c9;
+–border: rgba(79,195,247,0.2);
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+font-family: ‘Noto Sans JP’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100dvh;
+display: flex;
+flex-direction: column;
+-webkit-tap-highlight-color: transparent;
+overflow-x: hidden;
+}
+
+.header {
+padding: 14px 20px 12px;
+display: flex;
+align-items: center;
+gap: 10px;
+border-bottom: 1px solid var(–border);
+background: var(–surface);
+}
+.header-icon {
+width: 36px; height: 36px;
+background: linear-gradient(135deg, var(–accent), #0077b6);
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+font-size: 18px;
+}
+.header-title { font-size: 16px; font-weight: 700; }
+.header-sub { font-size: 11px; color: var(–text-dim); margin-top: 1px; }
+
+main { flex: 1; display: flex; flex-direction: column; padding: 14px; gap: 12px; overflow-y: auto; }
+
+/* ステータス */
+.status-card {
+background: var(–surface);
+border-radius: 20px;
+padding: 18px 20px;
+border: 1px solid var(–border);
+display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.phase-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(–text-dim); text-transform: uppercase; }
+.phase-emoji { font-size: 34px; }
+.phase-text { font-size: 38px; font-weight: 900; letter-spacing: -0.02em; transition: color 0.3s; }
+.phase-text.idle   { color: var(–text-dim); }
+.phase-text.detect { color: var(–warning); }
+.phase-text.breath { color: var(–accent); }
+.phase-text.hold   { color: var(–success); }
+
+.cycle-row {
+display: flex; align-items: center; gap: 6px; margin-top: 4px;
+}
+.cycle-dot {
+width: 12px; height: 12px; border-radius: 50%;
+background: var(–surface2);
+border: 1.5px solid var(–border);
+transition: background 0.3s, border-color 0.3s;
+}
+.cycle-dot.done { background: var(–accent); border-color: var(–accent); }
+.cycle-dot.current { background: var(–warning); border-color: var(–warning); animation: blink 0.8s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hold-timer-wrap { min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.hold-timer { font-family: ‘DM Mono’, monospace; font-size: 48px; font-weight: 500; color: var(–success); }
+.hold-timer-label { font-size: 11px; color: var(–text-dim); }
+
+/* 波形 */
+.wave-section {
+background: var(–surface);
+border-radius: 20px;
+border: 1px solid var(–border);
+padding: 12px 14px;
+display: flex; flex-direction: column; gap: 8px;
+}
+.wave-header { display: flex; justify-content: space-between; align-items: center; }
+.wave-title { font-size: 12px; color: var(–text-dim); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.wave-dot { width: 8px; height: 8px; border-radius: 50%; background: var(–text-dim); transition: background 0.3s; }
+.wave-dot.active { background: var(–success); box-shadow: 0 0 8px var(–success); animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+canvas { width: 100%; height: 140px; display: block; border-radius: 10px; background: var(–bg); }
+
+/* 振幅スケール */
+.scale-row {
+display: flex; align-items: center; gap: 10px;
+background: var(–surface); border-radius: 14px; padding: 10px 14px;
+border: 1px solid var(–border);
+}
+.scale-label { font-size: 12px; color: var(–text-dim); white-space: nowrap; }
+input[type=range] {
+flex: 1; -webkit-appearance: none;
+height: 4px; border-radius: 2px;
+background: var(–surface2); outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+-webkit-appearance: none;
+width: 22px; height: 22px; border-radius: 50%;
+background: var(–accent); cursor: pointer;
+}
+.scale-val { font-family: ‘DM Mono’, monospace; font-size: 13px; color: var(–accent); min-width: 48px; text-align: right; }
+
+/* 統計 */
+.stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.stat-card {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 16px; padding: 12px 8px; text-align: center;
+}
+.stat-value { font-family: ‘DM Mono’, monospace; font-size: 22px; font-weight: 500; color: var(–accent); line-height: 1; }
+.stat-label { font-size: 10px; color: var(–text-dim); margin-top: 4px; }
+
+/* ボタン */
+.controls { display: flex; gap: 12px; }
+.btn {
+flex: 1; padding: 16px; border: none; border-radius: 16px;
+font-family: ‘Noto Sans JP’, sans-serif; font-size: 15px; font-weight: 700;
+cursor: pointer; transition: transform 0.1s, opacity 0.2s; letter-spacing: 0.04em;
+}
+.btn:active { transform: scale(0.96); }
+.btn-start { background: linear-gradient(135deg, #0077b6, var(–accent)); color: #fff; }
+.btn-stop { background: var(–surface2); color: var(–text-dim); border: 1px solid var(–border); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.notice { font-size: 10px; color: var(–text-dim); text-align: center; line-height: 1.6; padding-bottom: 8px; }
+
+/* iOS modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: flex-end; z-index: 100; backdrop-filter: blur(4px); }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(–surface); border-radius: 24px 24px 0 0; padding: 28px 24px 40px; width: 100%; border-top: 1px solid var(–border); }
+.modal h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+.modal p { font-size: 14px; color: var(–text-dim); line-height: 1.7; margin-bottom: 24px; }
+.modal-btn { width: 100%; padding: 18px; border: none; border-radius: 16px; background: linear-gradient(135deg, #0077b6, var(–accent)); color: #fff; font-family: ‘Noto Sans JP’, sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; }
 </style>
+
 </head>
 <body>
-<div class="modal-overlay hidden" id="iosModal"><div class="modal"><h2>🔔 センサーの許可が必要です</h2><p>iPhoneではモーションセンサーの使用に許可が必要です。下のボタンをタップして許可してください。</p><button class="modal-btn" id="iosPermBtn">センサーを許可する</button></div></div>
-<header class="header"><div class="header-icon">🫁</div><div><div class="header-title">息止めコーチング</div><div class="header-sub">6周期ガイド付き呼吸練習</div></div></header>
+
+<div class="modal-overlay hidden" id="iosModal">
+  <div class="modal">
+    <h2>🔔 センサーの許可が必要です</h2>
+    <p>iOSではモーションセンサーの使用に許可が必要です。下のボタンをタップして許可してください。</p>
+    <button class="modal-btn" id="iosPermBtn">センサーを許可する</button>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-icon">🫁</div>
+  <div>
+    <div class="header-title">息止めコーチング</div>
+    <div class="header-sub">呼気止め練習アプリ</div>
+  </div>
+</header>
+
 <main>
+  <!-- ステータス -->
   <div class="status-card">
     <div class="phase-label">現在の状態</div>
     <div class="phase-emoji" id="phaseEmoji">😴</div>
     <div class="phase-text idle" id="phaseText">待機中</div>
-    <div class="cycle-info"><div class="pill">周期 <span id="cycleCount">0</span> / 6</div><div class="pill">1周期 <span id="cycleSeconds">4.0</span> 秒</div><div class="pill">息止め <span id="holdTarget">15</span> 秒</div></div>
-    <div class="hold-timer-wrap"><div class="hold-timer hidden" id="holdTimer">0.0</div><div class="hold-timer-label" id="holdTimerLabel"></div></div>
-  </div>
-  <div class="wave-section"><div class="wave-header"><span class="wave-title">📈 呼吸ガイド波形</span><span class="wave-status-dot" id="waveDot"></span></div><canvas id="waveCanvas"></canvas></div>
-  <div class="stats-row"><div class="stat-card"><div class="stat-value" id="statBest">--</div><div class="stat-label">最長息止め(秒)</div></div><div class="stat-card"><div class="stat-value" id="statCount">0</div><div class="stat-label">息止め回数</div></div><div class="stat-card"><div class="stat-value" id="statAvg">--</div><div class="stat-label">平均息止め(秒)</div></div></div>
-  <div class="mode-row"><div><div style="font-size:13px;font-weight:700;margin-bottom:4px;">ガイドモード</div><div class="mode-text">サインカーブに合わせて呼吸を誘導し、6周期目で息止めを案内します。</div></div><label class="toggle"><input type="checkbox" id="ttsToggle" checked /><span class="toggle-track"><span class="toggle-thumb"></span></span>音声</label></div>
-  <div class="sensitivity-row"><span class="sens-label">周期時間</span><input type="range" id="periodSlider" min="3" max="6" step="0.5" value="4"><span class="sens-val" id="periodVal">4.0</span></div>
-  <div class="sensitivity-row"><span class="sens-label">息止め時間</span><input type="range" id="holdSlider" min="10" max="25" step="1" value="15"><span class="sens-val" id="holdVal">15</span></div>
-  <div class="controls"><button class="btn btn-start" id="btnStart">▶ 開始</button><button class="btn btn-stop" id="btnStop" disabled>■ 停止</button></div>
-  <div class="notice">※ このアプリは呼吸練習の補助ツールです。医療機器ではありません。<br>画面の波形はサインカーブのガイドです。6周期目で息止めの合図が出ます。</div>
-</main>
-<script>
-const state={running:false,phase:'idle',t0:null,cycleCount:0,holdStart:null,bestHold:null,holdCount:0,totalHold:0,holdTimes:[],periodSec:4.0,holdTargetSec:15,ttsEnabled:true,holdTriggered:false,lastSpokenPhase:null,speakCooldown:false};
-const WAVE_POINTS=360,waveBuffer=new Float32Array(WAVE_POINTS);
-const phaseText=document.getElementById('phaseText'),phaseEmoji=document.getElementById('phaseEmoji'),holdTimer=document.getElementById('holdTimer'),holdTimerLabel=document.getElementById('holdTimerLabel'),waveDot=document.getElementById('waveDot'),statBest=document.getElementById('statBest'),statCount=document.getElementById('statCount'),statAvg=document.getElementById('statAvg'),btnStart=document.getElementById('btnStart'),btnStop=document.getElementById('btnStop'),canvas=document.getElementById('waveCanvas'),ctx=canvas.getContext('2d'),cycleCountEl=document.getElementById('cycleCount'),cycleSecondsEl=document.getElementById('cycleSeconds'),holdTargetEl=document.getElementById('holdTarget'),periodSlider=document.getElementById('periodSlider'),periodVal=document.getElementById('periodVal'),holdSlider=document.getElementById('holdSlider'),holdVal=document.getElementById('holdVal'),ttsToggle=document.getElementById('ttsToggle'),iosModal=document.getElementById('iosModal'),iosPermBtn=document.getElementById('iosPermBtn');
 
-function resizeCanvas(){const rect=canvas.parentElement.getBoundingClientRect();canvas.width=rect.width*window.devicePixelRatio;canvas.height=(rect.height-60)*window.devicePixelRatio;canvas.style.width=rect.width+'px';canvas.style.height=(rect.height-60)+'px';}
-function speak(text){if(!state.ttsEnabled||!window.speechSynthesis||state.speakCooldown)return;state.speakCooldown=true;window.speechSynthesis.cancel();const utter=new SpeechSynthesisUtterance(text);utter.lang='ja-JP';utter.rate=.93;utter.pitch=1;utter.volume=1;utter.onend=()=>{state.speakCooldown=false};utter.onerror=()=>{state.speakCooldown=false};window.speechSynthesis.speak(utter);}
-function setPhase(phase){if(state.phase===phase)return;state.phase=phase;const cfg={idle:{text:'待機中',emoji:'😴',cls:'idle'},inhale:{text:'息を吸って',emoji:'🫁',cls:'inhale'},exhale:{text:'息を吐いて',emoji:'💨',cls:'exhale'},hold:{text:'止めて！',emoji:'✋',cls:'hold'},prepare:{text:'準備中...',emoji:'🔍',cls:'prepare'}}[phase];phaseText.textContent=cfg.text;phaseText.className=`phase-text ${cfg.cls}`;phaseEmoji.textContent=cfg.emoji;if(phase==='hold'&&state.holdStart===null){state.holdStart=Date.now();state.holdTriggered=true}const speechMap={inhale:'息を吸ってください',exhale:'息を吐いてください',hold:'止めてください'};if(speechMap[phase]&&phase!==state.lastSpokenPhase){speak(speechMap[phase]);state.lastSpokenPhase=phase}if(phase==='idle')state.lastSpokenPhase=null;}
-function updateStats(){cycleCountEl.textContent=state.cycleCount;cycleSecondsEl.textContent=state.periodSec.toFixed(1);holdTargetEl.textContent=state.holdTargetSec;statCount.textContent=state.holdCount;if(state.bestHold!==null)statBest.textContent=state.bestHold.toFixed(1);if(state.holdCount>0)statAvg.textContent=(state.totalHold/state.holdCount).toFixed(1);}
-function updateHoldTimer(){if(state.phase==='hold'&&state.holdStart){const elapsed=(Date.now()-state.holdStart)/1000;holdTimer.textContent=elapsed.toFixed(1);holdTimer.classList.remove('hidden');holdTimerLabel.textContent='息止め継続中';}else{holdTimer.classList.add('hidden');holdTimerLabel.textContent='';}}
-function generateWave(){const now=performance.now();if(state.t0===null)state.t0=now;const elapsedSec=(now-state.t0)/1000;const cycleSec=state.periodSec;const phaseInCycle=(elapsedSec%cycleSec)/cycleSec;const value=Math.sin(2*Math.PI*phaseInCycle);const wholeCycles=Math.floor(elapsedSec/cycleSec);if(wholeCycles>state.cycleCount&&!state.holdTriggered){state.cycleCount=wholeCycles;updateStats();if(state.cycleCount>=6){setPhase('hold');speak('止めてください');}}if(!state.holdTriggered){if(value>0.25)setPhase('inhale');else if(value<-0.25)setPhase('exhale');else if(state.phase==='idle')setPhase('prepare');}return value;}
-function drawWave(){resizeCanvas();const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);ctx.strokeStyle='rgba(79,195,247,0.06)';ctx.lineWidth=1;for(let i=0;i<5;i++){const y=H*i/4;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}ctx.strokeStyle='rgba(79,195,247,0.15)';ctx.lineWidth=1;ctx.setLineDash([4,6]);ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();ctx.setLineDash([]);const t=performance.now()/1000;const periodSec=state.periodSec,visibleSeconds=12,amplitude=state.phase==='hold'?0.18:0.36,verticalScale=H*.28;for(let i=0;i<WAVE_POINTS;i++){const xProgress=i/(WAVE_POINTS-1);const timeOffset=(xProgress-1)*visibleSeconds;const angle=2*Math.PI*((t+timeOffset)/periodSec);const envelope=.92+.08*Math.sin(2*Math.PI*(t*.05+xProgress));waveBuffer[i]=Math.sin(angle)*amplitude*envelope}const gradient=ctx.createLinearGradient(0,0,0,H);gradient.addColorStop(0,state.phase==='hold'?'#66bb6a':'#4fc3f7');gradient.addColorStop(1,state.phase==='hold'?'#2e7d32':'#0077b6');ctx.beginPath();ctx.strokeStyle=gradient;ctx.lineWidth=2.5*window.devicePixelRatio;ctx.lineJoin='round';ctx.lineCap='round';for(let i=0;i<WAVE_POINTS;i++){const x=i/(WAVE_POINTS-1)*W;const y=H/2-waveBuffer[i]*verticalScale*window.devicePixelRatio;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke();const wavePos=Math.sin(2*Math.PI*((t%periodSec)/periodSec));const dotY=H/2-wavePos*verticalScale*window.devicePixelRatio,dotX=W*.85;ctx.beginPath();ctx.fillStyle=state.phase==='hold'?'#66bb6a':'#81d4fa';ctx.arc(dotX,dotY,8*window.devicePixelRatio,0,Math.PI*2);ctx.fill();}
-let rafId=null;function loop(){if(!state.running)return;generateWave();updateHoldTimer();drawWave();if(state.phase==='hold'&&state.holdStart){const elapsed=(Date.now()-state.holdStart)/1000;if(elapsed>=state.holdTargetSec){speak('息止めを終了してください')}}rafId=requestAnimationFrame(loop);}
-function startSession(){state.running=true;state.phase='idle';state.t0=null;state.cycleCount=0;state.holdStart=null;state.holdTriggered=false;state.lastSpokenPhase=null;state.speakCooldown=false;window.speechSynthesis?.cancel();updateStats();waveDot.classList.add('active');btnStart.disabled=true;btnStop.disabled=false;setPhase('prepare');speak('準備を開始します。波形に合わせて呼吸してください。6周期目で息止めの合図が出ます。');loop();}
-function stopSession(){state.running=false;state.phase='idle';state.t0=null;state.cycleCount=0;state.holdStart=null;state.holdTriggered=false;window.speechSynthesis?.cancel();waveDot.classList.remove('active');btnStart.disabled=false;btnStop.disabled=true;holdTimer.classList.add('hidden');holdTimerLabel.textContent='';phaseText.textContent='待機中';phaseText.className='phase-text idle';phaseEmoji.textContent='😴';updateStats();if(rafId)cancelAnimationFrame(rafId);rafId=null;drawWave();}
-periodSlider.addEventListener('input',()=>{state.periodSec=parseFloat(periodSlider.value);periodVal.textContent=state.periodSec.toFixed(1);updateStats()});
-holdSlider.addEventListener('input',()=>{state.holdTargetSec=parseInt(holdSlider.value,10);holdVal.textContent=state.holdTargetSec;updateStats()});
-ttsToggle.addEventListener('change',()=>{state.ttsEnabled=ttsToggle.checked;if(!state.ttsEnabled)window.speechSynthesis?.cancel()});
-btnStart.addEventListener('click',()=>{if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){DeviceMotionEvent.requestPermission().then(perm=>{if(perm==='granted')startSession();else startSession()}).catch(()=>startSession())}else startSession()});
-btnStop.addEventListener('click',stopSession);
-if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function')iosModal.classList.remove('hidden');
-iosPermBtn.addEventListener('click',()=>{DeviceMotionEvent.requestPermission().then(()=>{iosModal.classList.add('hidden')}).catch(()=>{iosModal.classList.add('hidden')})});
-window.addEventListener('resize',drawWave);document.addEventListener('visibilitychange',()=>{if(document.hidden)window.speechSynthesis?.cancel()});
-periodVal.textContent=state.periodSec.toFixed(1);holdVal.textContent=state.holdTargetSec;updateStats();drawWave();
+```
+<!-- 周期インジケーター（6個のドット） -->
+<div class="cycle-row" id="cycleDots">
+  <div class="cycle-dot" id="dot0"></div>
+  <div class="cycle-dot" id="dot1"></div>
+  <div class="cycle-dot" id="dot2"></div>
+  <div class="cycle-dot" id="dot3"></div>
+  <div class="cycle-dot" id="dot4"></div>
+  <div class="cycle-dot" id="dot5"></div>
+</div>
+
+<div class="hold-timer-wrap">
+  <div class="hold-timer" id="holdTimer" style="display:none">0.0</div>
+  <div class="hold-timer-label" id="holdTimerLabel"></div>
+</div>
+```
+
+  </div>
+
+  <!-- 波形 -->
+
+  <div class="wave-section">
+    <div class="wave-header">
+      <span class="wave-title">📈 呼吸波形</span>
+      <span class="wave-dot" id="waveDot"></span>
+    </div>
+    <canvas id="waveCanvas"></canvas>
+  </div>
+
+  <!-- 振幅スケール -->
+
+  <div class="scale-row">
+    <span class="scale-label">表示振幅</span>
+    <input type="range" id="scaleSlider" min="1" max="20" value="5" step="1">
+    <span class="scale-val" id="scaleVal">標準</span>
+  </div>
+
+  <!-- 統計 -->
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="statBest">--</div>
+      <div class="stat-label">最長息止め(秒)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statCount">0</div>
+      <div class="stat-label">息止め回数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statAvg">--</div>
+      <div class="stat-label">平均息止め(秒)</div>
+    </div>
+  </div>
+
+  <!-- ボタン -->
+
+  <div class="controls">
+    <button class="btn btn-start" id="btnStart">▶ 開始</button>
+    <button class="btn btn-stop" id="btnStop" disabled>■ 停止</button>
+  </div>
+
+  <div class="notice">
+    ※ このアプリは練習補助ツールです。医療機器ではありません。<br>
+    スマートフォンをお腹の上に静かに置いて使用してください。
+  </div>
+</main>
+
+<script>
+// ===================================================
+// 定数
+// ===================================================
+const SAMPLE_HZ = 20;           // センサー更新頻度
+const BUFFER_LEN = 300;         // 波形バッファ長（約15秒分）
+const TARGET_CYCLES = 6;        // 何周期目で息止め合図
+
+// ハイパスフィルタ定数（重力除去）
+// カットオフ約0.05Hz → 呼吸(0.2-0.5Hz)を通し、重力(DC)をカット
+const HP_ALPHA = 0.97;          // 高い値ほど低周波をよりカット
+
+// ローパスフィルタ定数（高周波ノイズ除去）
+const LP_ALPHA = 0.25;
+
+// 息止め判定：この秒数以上静止で息止めとみなす
+const HOLD_STILL_SEC = 0.6;
+const HOLD_STILL_FRAMES = Math.round(HOLD_STILL_SEC * SAMPLE_HZ);
+
+// ゼロクロス検出の最小間隔（誤検出防止）：0.5秒
+const MIN_ZERO_CROSS_INTERVAL = Math.round(0.5 * SAMPLE_HZ);
+
+// ===================================================
+// 状態
+// ===================================================
+const st = {
+  running: false,
+  phase: 'idle',   // idle / detect / breath / hold
+  holdStart: null,
+  bestHold: null,
+  holdCount: 0,
+  totalHold: 0,
+  cycleCount: 0,   // 完了した呼吸周期数
+  scaleGain: 5,    // 表示スケール（スライダー値）
+};
+
+// フィルタ状態
+let rawZ = 0;
+let lpZ = 0;        // ローパス後
+let hpZ = 0;        // ハイパス後（呼吸成分）
+let hpPrev = 0;     // 前フレームのhpZ（ハイパス用）
+let lpPrev = 0;     // 前フレームのlpZ
+
+// 波形バッファ
+const waveBuffer = new Float32Array(BUFFER_LEN);
+let waveHead = 0;
+
+// 周期検出
+let zeroCrossCount = 0;     // ゼロクロス回数（2回 = 1周期）
+let lastZeroCrossFrame = -999;
+let prevSign = 0;           // 前フレームの符号
+let framesSinceStart = 0;
+
+// 息止め判定
+let stillFrames = 0;
+let holdActive = false;
+
+// ベースライン収集（起動直後の数秒）
+let baselineFrames = 0;
+const BASELINE_REQUIRED = SAMPLE_HZ * 3; // 3秒
+
+// TTS
+let speakBusy = false;
+let lastSpokenPhase = null;
+
+// ===================================================
+// UI要素
+// ===================================================
+const phaseText   = document.getElementById('phaseText');
+const phaseEmoji  = document.getElementById('phaseEmoji');
+const holdTimer   = document.getElementById('holdTimer');
+const holdTimerLabel = document.getElementById('holdTimerLabel');
+const waveDot     = document.getElementById('waveDot');
+const statBest    = document.getElementById('statBest');
+const statCount   = document.getElementById('statCount');
+const statAvg     = document.getElementById('statAvg');
+const btnStart    = document.getElementById('btnStart');
+const btnStop     = document.getElementById('btnStop');
+const scaleSlider = document.getElementById('scaleSlider');
+const scaleVal    = document.getElementById('scaleVal');
+const canvas      = document.getElementById('waveCanvas');
+const ctx         = canvas.getContext('2d');
+
+// 周期ドット
+const dots = Array.from({length: 6}, (_, i) => document.getElementById(`dot${i}`));
+
+// ===================================================
+// スケールスライダー
+// ===================================================
+function updateScaleLabel(v) {
+  const labels = {1:'最大',3:'大',5:'標準',8:'小',12:'極小',20:'最小'};
+  // 最も近いラベルを探す
+  let closest = '標準';
+  let minDiff = 999;
+  for (const [k, l] of Object.entries(labels)) {
+    const d = Math.abs(v - Number(k));
+    if (d < minDiff) { minDiff = d; closest = l; }
+  }
+  scaleVal.textContent = closest;
+}
+scaleSlider.addEventListener('input', () => {
+  st.scaleGain = parseInt(scaleSlider.value);
+  updateScaleLabel(st.scaleGain);
+});
+updateScaleLabel(5);
+
+// ===================================================
+// TTS
+// ===================================================
+function speak(text) {
+  if (!window.speechSynthesis || speakBusy) return;
+  speakBusy = true;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP'; u.rate = 0.9;
+  u.onend = u.onerror = () => { speakBusy = false; };
+  speechSynthesis.speak(u);
+}
+
+// ===================================================
+// 周期ドット更新
+// ===================================================
+function updateDots(n) {
+  // n: 完了済みサイクル数（0〜6）
+  dots.forEach((d, i) => {
+    d.classList.remove('done', 'current');
+    if (i < n) d.classList.add('done');
+    else if (i === n && n < TARGET_CYCLES) d.classList.add('current');
+  });
+}
+
+// ===================================================
+// フェーズ制御
+// ===================================================
+function setPhase(p) {
+  if (st.phase === p) return;
+  const prev = st.phase;
+  st.phase = p;
+
+  // 息止め終了
+  if (prev === 'hold' && p !== 'hold' && st.holdStart !== null) {
+    const dur = (Date.now() - st.holdStart) / 1000;
+    if (dur >= 0.5) {
+      st.holdCount++;
+      st.totalHold += dur;
+      if (st.bestHold === null || dur > st.bestHold) st.bestHold = dur;
+      updateStats();
+    }
+    st.holdStart = null;
+  }
+  if (p === 'hold' && st.holdStart === null) {
+    st.holdStart = Date.now();
+  }
+
+  const cfg = {
+    idle:   { text: '待機中',     emoji: '😴', cls: 'idle'   },
+    detect: { text: '計測中...',  emoji: '🔍', cls: 'detect' },
+    breath: { text: '呼吸中',     emoji: '🌊', cls: 'breath' },
+    hold:   { text: '止めて！',   emoji: '✋', cls: 'hold'   },
+  }[p];
+  phaseText.textContent = cfg.text;
+  phaseText.className = `phase-text ${cfg.cls}`;
+  phaseEmoji.textContent = cfg.emoji;
+
+  const speechMap = { breath: '呼吸を続けてください', hold: '止めてください' };
+  if (speechMap[p] && p !== lastSpokenPhase) {
+    speak(speechMap[p]);
+    lastSpokenPhase = p;
+  }
+  if (p === 'idle' || p === 'detect') lastSpokenPhase = null;
+}
+
+function updateStats() {
+  statCount.textContent = st.holdCount;
+  if (st.bestHold !== null) statBest.textContent = st.bestHold.toFixed(1);
+  if (st.holdCount > 0) statAvg.textContent = (st.totalHold / st.holdCount).toFixed(1);
+}
+
+// ===================================================
+// センサーイベント処理
+// ===================================================
+function onMotion(e) {
+  if (!st.running) return;
+  const acc = e.accelerationIncludingGravity || e.acceleration;
+  if (!acc) return;
+
+  rawZ = acc.z ?? 0;
+  framesSinceStart++;
+
+  // --- ローパスフィルタ（ノイズ除去）---
+  lpZ = LP_ALPHA * rawZ + (1 - LP_ALPHA) * lpPrev;
+  lpPrev = lpZ;
+
+  // --- ハイパスフィルタ（重力・DCオフセット除去）---
+  hpZ = HP_ALPHA * (hpPrev + lpZ - lpPrev);
+  // 注意：lpPrevはすでに更新済みなのでlpZ_prevを別途保持
+  // 正確なHPF実装：
+  // hpZ[n] = alpha * (hpZ[n-1] + x[n] - x[n-1])
+  // ここではlpZを入力とする
+  hpPrev = hpZ;
+
+  // 波形バッファへ
+  waveBuffer[waveHead] = hpZ;
+  waveHead = (waveHead + 1) % BUFFER_LEN;
+
+  // ベースライン収集中
+  if (baselineFrames < BASELINE_REQUIRED) {
+    baselineFrames++;
+    if (baselineFrames === BASELINE_REQUIRED) {
+      setPhase('breath');
+      // 周期カウントリセット
+      zeroCrossCount = 0;
+      st.cycleCount = 0;
+      prevSign = Math.sign(hpZ);
+      updateDots(0);
+      speak('呼吸を始めてください。6回呼吸したら止めます。');
+    }
+    return;
+  }
+
+  // === 呼吸中フェーズのみ周期カウント ===
+  if (st.phase === 'breath') {
+    const curSign = hpZ > 0 ? 1 : (hpZ < 0 ? -1 : 0);
+
+    // ゼロクロス検出（負→正：吸気開始、正→負：呼気開始）
+    if (curSign !== 0 && prevSign !== 0 && curSign !== prevSign) {
+      const framesSinceLastCross = framesSinceStart - lastZeroCrossFrame;
+      if (framesSinceLastCross > MIN_ZERO_CROSS_INTERVAL) {
+        zeroCrossCount++;
+        lastZeroCrossFrame = framesSinceStart;
+
+        // ゼロクロス2回 = 1周期
+        if (zeroCrossCount % 2 === 0) {
+          st.cycleCount++;
+          updateDots(st.cycleCount);
+
+          if (st.cycleCount < TARGET_CYCLES) {
+            // 残りサイクルをアナウンス
+            const remaining = TARGET_CYCLES - st.cycleCount;
+            if (remaining <= 2) speak(`あと${remaining}回`);
+          } else {
+            // 6周期完了 → 次の呼気谷（負→正クロス）で止める
+            // ここでは即座に合図（次の呼気タイミング）
+            triggerHold();
+          }
+        }
+      }
+    }
+    if (curSign !== 0) prevSign = curSign;
+
+    // 息止め判定（動きが止まったか）
+    const motionMag = Math.abs(hpZ);
+    if (motionMag < 0.02) {
+      stillFrames++;
+    } else {
+      stillFrames = 0;
+    }
+  }
+
+  // 息止め中：動き再開を検出して解除
+  if (st.phase === 'hold') {
+    const motionMag = Math.abs(hpZ);
+    if (motionMag > 0.04) {
+      // 息止め解除→再度カウントへ
+      st.cycleCount = 0;
+      zeroCrossCount = 0;
+      prevSign = Math.sign(hpZ);
+      stillFrames = 0;
+      updateDots(0);
+      setPhase('breath');
+      speak('息を吸ってください。また6回呼吸します。');
+    }
+  }
+}
+
+function triggerHold() {
+  speak('止めてください');
+  lastSpokenPhase = 'hold';
+  setPhase('hold');
+  stillFrames = 0;
+  updateDots(TARGET_CYCLES);
+}
+
+// ===================================================
+// ハイパスフィルタ（正確な実装）
+// ===================================================
+let hpX_prev = 0;   // 入力の前の値
+let hpY_prev = 0;   // 出力の前の値
+
+function highpass(x) {
+  const y = HP_ALPHA * (hpY_prev + x - hpX_prev);
+  hpX_prev = x;
+  hpY_prev = y;
+  return y;
+}
+
+let lpX_prev = 0;
+function lowpass(x) {
+  const y = LP_ALPHA * x + (1 - LP_ALPHA) * lpX_prev;
+  lpX_prev = y;
+  return y;
+}
+
+// onMotionを正しいフィルタ実装で上書き
+function onMotionFiltered(e) {
+  if (!st.running) return;
+  const acc = e.accelerationIncludingGravity || e.acceleration;
+  if (!acc) return;
+
+  rawZ = acc.z ?? 0;
+  framesSinceStart++;
+
+  // ローパス → ハイパスの順でフィルタ
+  const lp = lowpass(rawZ);
+  const hp = highpass(lp);
+
+  // 波形バッファ
+  waveBuffer[waveHead] = hp;
+  waveHead = (waveHead + 1) % BUFFER_LEN;
+
+  // ベースライン収集中
+  if (baselineFrames < BASELINE_REQUIRED) {
+    baselineFrames++;
+    if (baselineFrames === BASELINE_REQUIRED) {
+      setPhase('breath');
+      zeroCrossCount = 0;
+      st.cycleCount = 0;
+      prevSign = Math.sign(hp);
+      updateDots(0);
+      speak('呼吸を始めてください。6回呼吸したら止めます。');
+    }
+    return;
+  }
+
+  if (st.phase === 'breath') {
+    const curSign = hp > 0.005 ? 1 : (hp < -0.005 ? -1 : 0); // デッドゾーン
+    if (curSign !== 0 && prevSign !== 0 && curSign !== prevSign) {
+      const interval = framesSinceStart - lastZeroCrossFrame;
+      if (interval > MIN_ZERO_CROSS_INTERVAL) {
+        zeroCrossCount++;
+        lastZeroCrossFrame = framesSinceStart;
+
+        if (zeroCrossCount % 2 === 0) {
+          st.cycleCount++;
+          updateDots(st.cycleCount);
+          const remaining = TARGET_CYCLES - st.cycleCount;
+          if (remaining > 0 && remaining <= 2) {
+            speak(`あと${remaining}回`);
+          } else if (remaining === 0) {
+            triggerHold();
+          }
+        }
+      }
+    }
+    if (curSign !== 0) prevSign = curSign;
+  }
+
+  if (st.phase === 'hold') {
+    const mag = Math.abs(hp);
+    if (mag > 0.04) {
+      st.cycleCount = 0;
+      zeroCrossCount = 0;
+      prevSign = Math.sign(hp);
+      stillFrames = 0;
+      updateDots(0);
+      setPhase('breath');
+      speak('息を吸ってください。また6回呼吸します。');
+    }
+  }
+}
+
+// ===================================================
+// 波形描画
+// ===================================================
+let rafId = null;
+
+function resizeCanvas() {
+  const pr = window.devicePixelRatio || 1;
+  const w = canvas.parentElement.clientWidth - 28;
+  canvas.width = w * pr;
+  canvas.height = 140 * pr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = '140px';
+}
+
+function drawWave() {
+  resizeCanvas();
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // グリッド線（中心±振幅目安）
+  ctx.strokeStyle = 'rgba(79,195,247,0.08)';
+  ctx.lineWidth = 1;
+  [0.25, 0.5, 0.75].forEach(r => {
+    const y = H * r;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  });
+
+  // 波形
+  const scaleY = (H / 2) / (0.1 / st.scaleGain * 10); // スケール調整
+  const isHold = st.phase === 'hold';
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, isHold ? '#66bb6a' : '#4fc3f7');
+  grad.addColorStop(1, isHold ? '#2e7d32' : '#0077b6');
+
+  ctx.beginPath();
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 2.5 * (window.devicePixelRatio || 1);
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  for (let i = 0; i < BUFFER_LEN; i++) {
+    const idx = (waveHead + i) % BUFFER_LEN;
+    const x = (i / (BUFFER_LEN - 1)) * W;
+    const y = H / 2 - waveBuffer[idx] * scaleY;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // 中心線
+  ctx.strokeStyle = 'rgba(79,195,247,0.18)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 6]);
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function loop() {
+  // ホールドタイマー更新
+  if (st.phase === 'hold' && st.holdStart) {
+    const el = (Date.now() - st.holdStart) / 1000;
+    holdTimer.style.display = '';
+    holdTimer.textContent = el.toFixed(1);
+    holdTimerLabel.textContent = '息止め継続中';
+  } else {
+    holdTimer.style.display = 'none';
+    holdTimerLabel.textContent = '';
+  }
+  drawWave();
+  rafId = requestAnimationFrame(loop);
+}
+
+// ===================================================
+// 開始・停止
+// ===================================================
+function startSession() {
+  // 全リセット
+  waveBuffer.fill(0); waveHead = 0;
+  rawZ = lpZ = hpZ = hpPrev = lpPrev = 0;
+  hpX_prev = hpY_prev = lpX_prev = 0;
+  prevSign = 0;
+  zeroCrossCount = 0; lastZeroCrossFrame = -999;
+  framesSinceStart = 0;
+  stillFrames = 0;
+  baselineFrames = 0;
+  st.holdStart = null;
+  st.cycleCount = 0;
+  lastSpokenPhase = null;
+  speakBusy = false;
+  updateDots(0);
+
+  st.running = true;
+  st.phase = 'detect';
+  phaseText.textContent = '計測中...';
+  phaseText.className = 'phase-text detect';
+  phaseEmoji.textContent = '🔍';
+  waveDot.classList.add('active');
+  btnStart.disabled = true;
+  btnStop.disabled = false;
+
+  window.addEventListener('devicemotion', onMotionFiltered);
+  loop();
+  speak('センサーを起動します。スマートフォンをお腹の上に置いて静かにしてください。');
+}
+
+function stopSession() {
+  st.running = false;
+  window.removeEventListener('devicemotion', onMotionFiltered);
+  setPhase('idle');
+  waveDot.classList.remove('active');
+  btnStart.disabled = false;
+  btnStop.disabled = true;
+  updateDots(0);
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  speak('セッションを終了します');
+}
+
+btnStart.addEventListener('click', () => {
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+      typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission()
+      .then(p => { if (p === 'granted') startSession(); else alert('センサーの許可が必要です'); })
+      .catch(console.error);
+  } else {
+    startSession();
+  }
+});
+btnStop.addEventListener('click', stopSession);
+
+// iOS modal
+const iosModal = document.getElementById('iosModal');
+const iosPermBtn = document.getElementById('iosPermBtn');
+if (typeof DeviceMotionEvent !== 'undefined' &&
+    typeof DeviceMotionEvent.requestPermission === 'function') {
+  iosModal.classList.remove('hidden');
+}
+iosPermBtn.addEventListener('click', () => {
+  DeviceMotionEvent.requestPermission()
+    .then(() => iosModal.classList.add('hidden'))
+    .catch(() => iosModal.classList.add('hidden'));
+});
+
+drawWave();
 </script>
+
 </body>
 </html>
