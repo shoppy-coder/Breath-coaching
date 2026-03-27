@@ -16,141 +16,271 @@
 –success: #66bb6a;
 –warning: #ffa726;
 –danger: #ef5350;
+–inhale: #4fc3f7;
+–exhale: #ce93d8;
 –text: #e8f4fd;
 –text-dim: #7fa8c9;
 –border: rgba(79,195,247,0.2);
 }
 
 - { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+  font-family: ‘Noto Sans JP’, sans-serif;
+  background: var(–bg); color: var(–text);
+  height: 100dvh; display: flex; flex-direction: column;
+  -webkit-tap-highlight-color: transparent; overflow: hidden;
+  }
 
-body {
-font-family: ‘Noto Sans JP’, sans-serif;
-background: var(–bg);
-color: var(–text);
-min-height: 100dvh;
-display: flex;
-flex-direction: column;
--webkit-tap-highlight-color: transparent;
-overflow-x: hidden;
-}
-
+/* ヘッダー */
 .header {
-padding: 14px 20px 12px;
-display: flex;
-align-items: center;
-gap: 10px;
-border-bottom: 1px solid var(–border);
-background: var(–surface);
+padding: 11px 16px; display: flex; align-items: center; gap: 10px;
+border-bottom: 1px solid var(–border); background: var(–surface); flex-shrink: 0;
 }
 .header-icon {
-width: 36px; height: 36px;
+width: 32px; height: 32px;
 background: linear-gradient(135deg, var(–accent), #0077b6);
-border-radius: 10px;
-display: flex; align-items: center; justify-content: center;
-font-size: 18px;
+border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px;
 }
-.header-title { font-size: 16px; font-weight: 700; }
-.header-sub { font-size: 11px; color: var(–text-dim); margin-top: 1px; }
+.header-title { font-size: 15px; font-weight: 700; }
+.header-sub   { font-size: 10px; color: var(–text-dim); }
 
-main { flex: 1; display: flex; flex-direction: column; padding: 14px; gap: 12px; overflow-y: auto; }
+/* タブ */
+.tabs { display: flex; background: var(–surface); border-bottom: 1px solid var(–border); flex-shrink: 0; }
+.tab {
+flex: 1; padding: 9px 0; font-size: 12px; font-weight: 700;
+text-align: center; color: var(–text-dim); cursor: pointer;
+border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; user-select: none;
+}
+.tab.active { color: var(–accent); border-bottom-color: var(–accent); }
 
-/* ステータス */
+/* ページ */
+.page { display: none; flex: 1; overflow-y: auto; padding: 12px; gap: 11px; flex-direction: column; }
+.page.active { display: flex; }
+
+/* カード共通 */
+.card {
+background: var(–surface); border-radius: 18px; border: 1px solid var(–border);
+padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;
+}
+.card-title { font-size: 11px; color: var(–text-dim); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ステータスカード */
 .status-card {
-background: var(–surface);
-border-radius: 20px;
-padding: 18px 20px;
+background: var(–surface); border-radius: 18px; padding: 14px 16px;
 border: 1px solid var(–border);
-display: flex; flex-direction: column; align-items: center; gap: 4px;
+display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0;
 }
 .phase-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(–text-dim); text-transform: uppercase; }
-.phase-emoji { font-size: 34px; }
-.phase-text { font-size: 38px; font-weight: 900; letter-spacing: -0.02em; transition: color 0.3s; }
+.phase-emoji { font-size: 30px; }
+.phase-text  { font-size: 34px; font-weight: 900; letter-spacing: -0.02em; transition: color 0.3s; }
 .phase-text.idle   { color: var(–text-dim); }
 .phase-text.detect { color: var(–warning); }
 .phase-text.breath { color: var(–accent); }
 .phase-text.hold   { color: var(–success); }
 
-.cycle-row {
-display: flex; align-items: center; gap: 6px; margin-top: 4px;
-}
+.cycle-row { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
 .cycle-dot {
-width: 12px; height: 12px; border-radius: 50%;
-background: var(–surface2);
-border: 1.5px solid var(–border);
+width: 11px; height: 11px; border-radius: 50%;
+background: var(–surface2); border: 1.5px solid var(–border);
 transition: background 0.3s, border-color 0.3s;
 }
-.cycle-dot.done { background: var(–accent); border-color: var(–accent); }
+.cycle-dot.done    { background: var(–accent); border-color: var(–accent); }
 .cycle-dot.current { background: var(–warning); border-color: var(–warning); animation: blink 0.8s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-.hold-timer-wrap { min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.hold-timer { font-family: ‘DM Mono’, monospace; font-size: 48px; font-weight: 500; color: var(–success); }
+.hold-timer-wrap { min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.hold-timer { font-family: ‘DM Mono’, monospace; font-size: 42px; font-weight: 500; color: var(–success); }
 .hold-timer-label { font-size: 11px; color: var(–text-dim); }
 
 /* 波形 */
-.wave-section {
-background: var(–surface);
-border-radius: 20px;
-border: 1px solid var(–border);
-padding: 12px 14px;
-display: flex; flex-direction: column; gap: 8px;
-}
 .wave-header { display: flex; justify-content: space-between; align-items: center; }
-.wave-title { font-size: 12px; color: var(–text-dim); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 .wave-dot { width: 8px; height: 8px; border-radius: 50%; background: var(–text-dim); transition: background 0.3s; }
 .wave-dot.active { background: var(–success); box-shadow: 0 0 8px var(–success); animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-canvas { width: 100%; height: 140px; display: block; border-radius: 10px; background: var(–bg); }
+canvas { width: 100%; height: 120px; display: block; border-radius: 10px; background: var(–bg); }
 
-/* 振幅スケール */
-.scale-row {
-display: flex; align-items: center; gap: 10px;
-background: var(–surface); border-radius: 14px; padding: 10px 14px;
-border: 1px solid var(–border);
-}
-.scale-label { font-size: 12px; color: var(–text-dim); white-space: nowrap; }
+/* スライダー */
+.slider-row { display: flex; align-items: center; gap: 10px; }
+.slider-label { font-size: 12px; color: var(–text-dim); white-space: nowrap; }
 input[type=range] {
-flex: 1; -webkit-appearance: none;
-height: 4px; border-radius: 2px;
-background: var(–surface2); outline: none;
+flex: 1; -webkit-appearance: none; height: 4px;
+border-radius: 2px; background: var(–surface2); outline: none;
 }
 input[type=range]::-webkit-slider-thumb {
--webkit-appearance: none;
-width: 22px; height: 22px; border-radius: 50%;
-background: var(–accent); cursor: pointer;
+-webkit-appearance: none; width: 22px; height: 22px;
+border-radius: 50%; background: var(–accent); cursor: pointer;
 }
-.scale-val { font-family: ‘DM Mono’, monospace; font-size: 13px; color: var(–accent); min-width: 48px; text-align: right; }
+.slider-val { font-family: ‘DM Mono’, monospace; font-size: 13px; color: var(–accent); min-width: 52px; text-align: right; }
 
 /* 統計 */
-.stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-.stat-card {
-background: var(–surface); border: 1px solid var(–border);
-border-radius: 16px; padding: 12px 8px; text-align: center;
-}
-.stat-value { font-family: ‘DM Mono’, monospace; font-size: 22px; font-weight: 500; color: var(–accent); line-height: 1; }
-.stat-label { font-size: 10px; color: var(–text-dim); margin-top: 4px; }
+.stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; }
+.stat-card { background: var(–surface); border: 1px solid var(–border); border-radius: 14px; padding: 10px 8px; text-align: center; }
+.stat-value { font-family: ‘DM Mono’, monospace; font-size: 20px; font-weight: 500; color: var(–accent); line-height: 1; }
+.stat-label { font-size: 10px; color: var(–text-dim); margin-top: 3px; }
 
-/* ボタン */
-.controls { display: flex; gap: 12px; }
+/* ボタン共通 */
 .btn {
-flex: 1; padding: 16px; border: none; border-radius: 16px;
-font-family: ‘Noto Sans JP’, sans-serif; font-size: 15px; font-weight: 700;
-cursor: pointer; transition: transform 0.1s, opacity 0.2s; letter-spacing: 0.04em;
+flex: 1; padding: 14px; border: none; border-radius: 14px;
+font-family: ‘Noto Sans JP’, sans-serif; font-size: 14px; font-weight: 700;
+cursor: pointer; transition: transform 0.1s, opacity 0.2s;
 }
 .btn:active { transform: scale(0.96); }
-.btn-start { background: linear-gradient(135deg, #0077b6, var(–accent)); color: #fff; }
-.btn-stop { background: var(–surface2); color: var(–text-dim); border: 1px solid var(–border); }
+.btn-primary { background: linear-gradient(135deg, #0077b6, var(–accent)); color: #fff; }
+.btn-secondary { background: var(–surface2); color: var(–text-dim); border: 1px solid var(–border); }
+.btn-accent  { background: var(–surface2); color: var(–accent); border: 1px solid var(–border); font-size: 13px; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.controls { display: flex; gap: 10px; flex-shrink: 0; }
 
-.notice { font-size: 10px; color: var(–text-dim); text-align: center; line-height: 1.6; padding-bottom: 8px; }
+.notice { font-size: 10px; color: var(–text-dim); text-align: center; line-height: 1.6; flex-shrink: 0; }
+
+/* メトロノームトグル */
+.metro-toggle-row {
+display: flex; align-items: center; justify-content: space-between;
+background: var(–surface); border-radius: 14px; padding: 11px 14px;
+border: 1px solid var(–border); flex-shrink: 0;
+}
+.metro-toggle-label { font-size: 13px; font-weight: 700; }
+.metro-toggle-sub   { font-size: 10px; color: var(–text-dim); margin-top: 1px; }
+.toggle-switch {
+width: 48px; height: 26px; border-radius: 13px;
+background: var(–surface2); border: 1px solid var(–border);
+position: relative; cursor: pointer; transition: background 0.2s;
+flex-shrink: 0;
+}
+.toggle-switch.on { background: var(–success); border-color: var(–success); }
+.toggle-knob {
+position: absolute; top: 2px; left: 2px;
+width: 20px; height: 20px; border-radius: 50%;
+background: #fff; transition: left 0.2s;
+}
+.toggle-switch.on .toggle-knob { left: 24px; }
+
+/* ===== BPMページ ===== */
+.bpm-display {
+text-align: center; padding: 8px 0;
+}
+.bpm-number {
+font-family: ‘DM Mono’, monospace; font-size: 72px; font-weight: 500;
+color: var(–accent); line-height: 1;
+}
+.bpm-unit { font-size: 18px; color: var(–text-dim); margin-top: 2px; }
+
+.tap-area {
+display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.tap-btn {
+padding: 28px 16px; border: none; border-radius: 18px;
+font-family: ‘Noto Sans JP’, sans-serif; font-size: 16px; font-weight: 700;
+cursor: pointer; transition: transform 0.08s, box-shadow 0.08s;
+display: flex; flex-direction: column; align-items: center; gap: 6px;
+user-select: none; -webkit-user-select: none;
+}
+.tap-btn:active { transform: scale(0.93); }
+.tap-btn-inhale {
+background: linear-gradient(160deg, #1a3050, #0d2540);
+border: 2px solid var(–inhale);
+color: var(–inhale);
+}
+.tap-btn-exhale {
+background: linear-gradient(160deg, #2a1a3a, #1a0d2e);
+border: 2px solid var(–exhale);
+color: var(–exhale);
+}
+.tap-btn-emoji { font-size: 32px; }
+.tap-count {
+font-family: ‘DM Mono’, monospace; font-size: 11px;
+opacity: 0.7; margin-top: 2px;
+}
+
+.tap-guide {
+background: var(–surface2); border-radius: 12px; padding: 10px 14px;
+font-size: 12px; color: var(–text-dim); text-align: center; line-height: 1.6;
+}
+
+.bpm-result-row {
+display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.bpm-result-card {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 14px; padding: 12px; text-align: center;
+}
+.bpm-result-val { font-family: ‘DM Mono’, monospace; font-size: 28px; font-weight: 500; }
+.bpm-result-val.inhale-c { color: var(–inhale); }
+.bpm-result-val.exhale-c { color: var(–exhale); }
+.bpm-result-label { font-size: 10px; color: var(–text-dim); margin-top: 3px; }
+
+.apply-btn {
+width: 100%; padding: 14px; border: none; border-radius: 14px;
+background: linear-gradient(135deg, #0077b6, var(–accent)); color: #fff;
+font-family: ‘Noto Sans JP’, sans-serif; font-size: 14px; font-weight: 700;
+cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+}
+.apply-btn:active { transform: scale(0.97); }
+.apply-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* メトロノームBPM調整 */
+.metro-bpm-row {
+display: flex; align-items: center; gap: 12px;
+}
+.metro-bpm-num {
+font-family: ‘DM Mono’, monospace; font-size: 42px; font-weight: 500;
+color: var(–warning); min-width: 70px; text-align: center;
+}
+.metro-adj-col { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.metro-adj-btn {
+padding: 10px; border: none; border-radius: 10px;
+background: var(–surface2); color: var(–text);
+font-size: 18px; font-weight: 700; cursor: pointer;
+border: 1px solid var(–border); transition: transform 0.1s;
+}
+.metro-adj-btn:active { transform: scale(0.93); }
+
+.metro-visual {
+display: flex; align-items: center; justify-content: center;
+height: 48px; gap: 8px;
+}
+.metro-beat {
+width: 14px; height: 14px; border-radius: 50%;
+background: var(–surface2); border: 1.5px solid var(–border);
+transition: background 0.05s, transform 0.05s;
+}
+.metro-beat.active {
+background: var(–warning); border-color: var(–warning);
+transform: scale(1.4);
+box-shadow: 0 0 10px var(–warning);
+}
+
+/* ログページ */
+.log-wave-wrap {
+overflow-x: auto; overflow-y: hidden;
+border-radius: 10px; background: var(–bg);
+-webkit-overflow-scrolling: touch;
+}
+#logCanvas { display: block; height: 160px; }
+.hold-list { display: flex; flex-direction: column; gap: 8px; }
+.hold-item {
+background: var(–surface2); border-radius: 12px; padding: 11px 13px;
+border: 1px solid var(–border); display: flex; align-items: center; gap: 10px;
+}
+.hold-num {
+width: 26px; height: 26px; border-radius: 50%;
+background: var(–accent); color: var(–bg);
+font-size: 12px; font-weight: 700;
+display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.hold-dur { font-family: ‘DM Mono’, monospace; font-size: 20px; font-weight: 500; color: var(–success); }
+.hold-dur span { font-size: 11px; color: var(–text-dim); margin-left: 2px; }
+.hold-time { font-size: 11px; color: var(–text-dim); margin-top: 1px; }
+.empty-log { text-align: center; color: var(–text-dim); font-size: 13px; padding: 24px 0; }
+.csv-row { display: flex; gap: 10px; }
 
 /* iOS modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: flex-end; z-index: 100; backdrop-filter: blur(4px); }
 .modal-overlay.hidden { display: none; }
-.modal { background: var(–surface); border-radius: 24px 24px 0 0; padding: 28px 24px 40px; width: 100%; border-top: 1px solid var(–border); }
-.modal h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
-.modal p { font-size: 14px; color: var(–text-dim); line-height: 1.7; margin-bottom: 24px; }
-.modal-btn { width: 100%; padding: 18px; border: none; border-radius: 16px; background: linear-gradient(135deg, #0077b6, var(–accent)); color: #fff; font-family: ‘Noto Sans JP’, sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; }
+.modal { background: var(–surface); border-radius: 24px 24px 0 0; padding: 26px 22px 38px; width: 100%; border-top: 1px solid var(–border); }
+.modal h2 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+.modal p  { font-size: 13px; color: var(–text-dim); line-height: 1.7; margin-bottom: 22px; }
+.modal-btn { width: 100%; padding: 16px; border: none; border-radius: 14px; background: linear-gradient(135deg, #0077b6, var(–accent)); color: #fff; font-family: ‘Noto Sans JP’, sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
 </style>
 
 </head>
@@ -172,593 +302,789 @@ cursor: pointer; transition: transform 0.1s, opacity 0.2s; letter-spacing: 0.04e
   </div>
 </header>
 
-<main>
-  <!-- ステータス -->
+<div class="tabs">
+  <div class="tab active" data-tab="main">🏠 練習</div>
+  <div class="tab" data-tab="bpm">🎵 BPM</div>
+  <div class="tab" data-tab="log">📋 ログ</div>
+</div>
+
+<!-- ===================== 練習ページ ===================== -->
+
+<div class="page active" id="page-main">
+
   <div class="status-card">
     <div class="phase-label">現在の状態</div>
     <div class="phase-emoji" id="phaseEmoji">😴</div>
     <div class="phase-text idle" id="phaseText">待機中</div>
-
-```
-<!-- 周期インジケーター（6個のドット） -->
-<div class="cycle-row" id="cycleDots">
-  <div class="cycle-dot" id="dot0"></div>
-  <div class="cycle-dot" id="dot1"></div>
-  <div class="cycle-dot" id="dot2"></div>
-  <div class="cycle-dot" id="dot3"></div>
-  <div class="cycle-dot" id="dot4"></div>
-  <div class="cycle-dot" id="dot5"></div>
-</div>
-
-<div class="hold-timer-wrap">
-  <div class="hold-timer" id="holdTimer" style="display:none">0.0</div>
-  <div class="hold-timer-label" id="holdTimerLabel"></div>
-</div>
-```
-
+    <div class="cycle-row">
+      <div class="cycle-dot" id="dot0"></div><div class="cycle-dot" id="dot1"></div>
+      <div class="cycle-dot" id="dot2"></div><div class="cycle-dot" id="dot3"></div>
+      <div class="cycle-dot" id="dot4"></div><div class="cycle-dot" id="dot5"></div>
+    </div>
+    <div class="hold-timer-wrap">
+      <div class="hold-timer" id="holdTimer" style="display:none">0.0</div>
+      <div class="hold-timer-label" id="holdTimerLabel"></div>
+    </div>
   </div>
 
-  <!-- 波形 -->
+  <!-- メトロノームON/OFF -->
 
-  <div class="wave-section">
+  <div class="metro-toggle-row">
+    <div>
+      <div class="metro-toggle-label">🎵 メトロノーム</div>
+      <div class="metro-toggle-sub" id="metroToggleSub">BPMタブで設定してください</div>
+    </div>
+    <div class="toggle-switch" id="metroToggle">
+      <div class="toggle-knob"></div>
+    </div>
+  </div>
+
+  <!-- メトロノームビジュアル（練習中） -->
+
+  <div class="metro-visual" id="metroVisualMain" style="display:none">
+    <div class="metro-beat" id="mb0"></div><div class="metro-beat" id="mb1"></div>
+    <div class="metro-beat" id="mb2"></div><div class="metro-beat" id="mb3"></div>
+    <div class="metro-beat" id="mb4"></div><div class="metro-beat" id="mb5"></div>
+    <div class="metro-beat" id="mb6"></div><div class="metro-beat" id="mb7"></div>
+  </div>
+
+  <div class="card">
     <div class="wave-header">
-      <span class="wave-title">📈 呼吸波形</span>
+      <span class="card-title">📈 リアルタイム波形</span>
       <span class="wave-dot" id="waveDot"></span>
     </div>
     <canvas id="waveCanvas"></canvas>
+    <div class="slider-row">
+      <span class="slider-label">表示振幅</span>
+      <input type="range" id="scaleSlider" min="1" max="20" value="5" step="1">
+      <span class="slider-val" id="scaleVal">標準</span>
+    </div>
   </div>
-
-  <!-- 振幅スケール -->
-
-  <div class="scale-row">
-    <span class="scale-label">表示振幅</span>
-    <input type="range" id="scaleSlider" min="1" max="20" value="5" step="1">
-    <span class="scale-val" id="scaleVal">標準</span>
-  </div>
-
-  <!-- 統計 -->
 
   <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-value" id="statBest">--</div>
-      <div class="stat-label">最長息止め(秒)</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statCount">0</div>
-      <div class="stat-label">息止め回数</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statAvg">--</div>
-      <div class="stat-label">平均息止め(秒)</div>
-    </div>
+    <div class="stat-card"><div class="stat-value" id="statBest">--</div><div class="stat-label">最長息止め(秒)</div></div>
+    <div class="stat-card"><div class="stat-value" id="statCount">0</div><div class="stat-label">息止め回数</div></div>
+    <div class="stat-card"><div class="stat-value" id="statAvg">--</div><div class="stat-label">平均息止め(秒)</div></div>
   </div>
 
-  <!-- ボタン -->
-
   <div class="controls">
-    <button class="btn btn-start" id="btnStart">▶ 開始</button>
-    <button class="btn btn-stop" id="btnStop" disabled>■ 停止</button>
+    <button class="btn btn-primary" id="btnStart">▶ 開始</button>
+    <button class="btn btn-secondary" id="btnStop" disabled>■ 停止</button>
   </div>
 
   <div class="notice">
-    ※ このアプリは練習補助ツールです。医療機器ではありません。<br>
+    ※ 練習補助ツールです。医療機器ではありません。<br>
     スマートフォンをお腹の上に静かに置いて使用してください。
   </div>
-</main>
+</div>
+
+<!-- ===================== BPMページ ===================== -->
+
+<div class="page" id="page-bpm">
+
+  <!-- BPM計測 -->
+
+  <div class="card">
+    <div class="card-title">📏 呼吸BPM計測</div>
+    <div class="tap-guide" id="tapGuide">吸気・呼気ボタンをそれぞれ2回ずつタップしてください</div>
+
+```
+<div class="tap-area">
+  <button class="tap-btn tap-btn-inhale" id="tapInhale">
+    <span class="tap-btn-emoji">🫁</span>
+    <span>吸気</span>
+    <span class="tap-count" id="inhaleCount">0/2 回</span>
+  </button>
+  <button class="tap-btn tap-btn-exhale" id="tapExhale">
+    <span class="tap-btn-emoji">💨</span>
+    <span>呼気</span>
+    <span class="tap-count" id="exhaleCount">0/2 回</span>
+  </button>
+</div>
+
+<div class="bpm-result-row">
+  <div class="bpm-result-card">
+    <div class="bpm-result-val inhale-c" id="inhaleDur">--</div>
+    <div class="bpm-result-label">吸気時間(秒)</div>
+  </div>
+  <div class="bpm-result-card">
+    <div class="bpm-result-val exhale-c" id="exhaleDur">--</div>
+    <div class="bpm-result-label">呼気時間(秒)</div>
+  </div>
+</div>
+
+<div class="bpm-display">
+  <div class="bpm-number" id="measuredBpm">--</div>
+  <div class="bpm-unit">BPM（呼吸数/分）</div>
+</div>
+
+<div style="display:flex; gap:10px;">
+  <button class="apply-btn" id="applyBpm" disabled>✓ この BPM をメトロノームに適用</button>
+</div>
+<button class="btn btn-secondary" id="resetTap" style="width:100%;padding:12px;">リセット</button>
+```
+
+  </div>
+
+  <!-- メトロノーム設定 -->
+
+  <div class="card">
+    <div class="card-title">🎵 メトロノーム設定</div>
+
+```
+<div class="metro-bpm-row">
+  <div class="metro-bpm-num" id="metroBpmDisp">15</div>
+  <div class="metro-adj-col">
+    <button class="metro-adj-btn" id="bpmUp">＋</button>
+    <button class="metro-adj-btn" id="bpmDown">－</button>
+  </div>
+  <div style="flex:2; display:flex; flex-direction:column; gap:6px;">
+    <input type="range" id="bpmSlider" min="4" max="40" value="15" step="1">
+    <div style="font-size:10px; color:var(--text-dim); text-align:center">4〜40 BPM（呼吸数/分）</div>
+  </div>
+</div>
+
+<div class="metro-visual" id="metroVisualBpm">
+  <div class="metro-beat" id="bmb0"></div><div class="metro-beat" id="bmb1"></div>
+  <div class="metro-beat" id="bmb2"></div><div class="metro-beat" id="bmb3"></div>
+  <div class="metro-beat" id="bmb4"></div><div class="metro-beat" id="bmb5"></div>
+  <div class="metro-beat" id="bmb6"></div><div class="metro-beat" id="bmb7"></div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-primary" id="btnMetroTest">▶ テスト再生</button>
+  <button class="btn btn-secondary" id="btnMetroStop">■ 停止</button>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ===================== ログページ ===================== -->
+
+<div class="page" id="page-log">
+
+  <div class="card">
+    <div class="wave-header">
+      <span class="card-title">📈 セッション全波形</span>
+      <span id="logDuration" style="font-size:11px;color:var(--text-dim)"></span>
+    </div>
+    <div class="log-wave-wrap" id="logWaveWrap">
+      <canvas id="logCanvas"></canvas>
+    </div>
+    <div style="font-size:10px;color:var(--text-dim);text-align:center">← 横にスクロールして全波形を確認</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">✋ 息止め一覧</div>
+    <div class="hold-list" id="holdList">
+      <div class="empty-log">セッションを開始してください</div>
+    </div>
+  </div>
+
+  <div class="csv-row">
+    <button class="btn btn-accent" id="btnCsvWave" disabled>📥 波形CSV</button>
+    <button class="btn btn-accent" id="btnCsvHold" disabled>📥 息止めCSV</button>
+  </div>
+</div>
 
 <script>
-// ===================================================
+// ============================================================
 // 定数
-// ===================================================
-const SAMPLE_HZ = 20;           // センサー更新頻度
-const BUFFER_LEN = 300;         // 波形バッファ長（約15秒分）
-const TARGET_CYCLES = 6;        // 何周期目で息止め合図
+// ============================================================
+const SAMPLE_HZ        = 20;
+const RT_BUF_LEN       = 300;
+const MAX_LOG_LEN      = 12000;
+const TARGET_CYCLES    = 6;
+const HP_ALPHA         = 0.97;
+const LP_ALPHA         = 0.25;
+const MIN_ZC_INTERVAL  = Math.round(0.5 * SAMPLE_HZ);
+const BASELINE_REQ     = SAMPLE_HZ * 3;
 
-// ハイパスフィルタ定数（重力除去）
-// カットオフ約0.05Hz → 呼吸(0.2-0.5Hz)を通し、重力(DC)をカット
-const HP_ALPHA = 0.97;          // 高い値ほど低周波をよりカット
-
-// ローパスフィルタ定数（高周波ノイズ除去）
-const LP_ALPHA = 0.25;
-
-// 息止め判定：この秒数以上静止で息止めとみなす
-const HOLD_STILL_SEC = 0.6;
-const HOLD_STILL_FRAMES = Math.round(HOLD_STILL_SEC * SAMPLE_HZ);
-
-// ゼロクロス検出の最小間隔（誤検出防止）：0.5秒
-const MIN_ZERO_CROSS_INTERVAL = Math.round(0.5 * SAMPLE_HZ);
-
-// ===================================================
+// ============================================================
 // 状態
-// ===================================================
+// ============================================================
 const st = {
-  running: false,
-  phase: 'idle',   // idle / detect / breath / hold
-  holdStart: null,
-  bestHold: null,
-  holdCount: 0,
-  totalHold: 0,
-  cycleCount: 0,   // 完了した呼吸周期数
-  scaleGain: 5,    // 表示スケール（スライダー値）
+  running: false, phase: 'idle',
+  holdStart: null, bestHold: null, holdCount: 0, totalHold: 0,
+  cycleCount: 0, scaleGain: 5, sessionStartTime: null,
 };
 
-// フィルタ状態
-let rawZ = 0;
-let lpZ = 0;        // ローパス後
-let hpZ = 0;        // ハイパス後（呼吸成分）
-let hpPrev = 0;     // 前フレームのhpZ（ハイパス用）
-let lpPrev = 0;     // 前フレームのlpZ
+// フィルタ
+let hpX=0, hpY=0, lpX=0;
+function lp(x){ const y=LP_ALPHA*x+(1-LP_ALPHA)*lpX; lpX=y; return y; }
+function hp(x){ const y=HP_ALPHA*(hpY+x-hpX); hpX=x; hpY=y; return y; }
 
-// 波形バッファ
-const waveBuffer = new Float32Array(BUFFER_LEN);
-let waveHead = 0;
+// バッファ
+const rtBuf = new Float32Array(RT_BUF_LEN);
+let rtHead = 0;
+let logBuf = new Float32Array(MAX_LOG_LEN);
+let logLen = 0, logTs = [];
+let holdLog = [], curHoldStartIdx = null;
 
 // 周期検出
-let zeroCrossCount = 0;     // ゼロクロス回数（2回 = 1周期）
-let lastZeroCrossFrame = -999;
-let prevSign = 0;           // 前フレームの符号
-let framesSinceStart = 0;
+let zcCount=0, lastZC=-999, prevSign=0;
+let frameCnt=0, baseFrm=0;
+let speakBusy=false, lastSpoken=null;
 
-// 息止め判定
-let stillFrames = 0;
-let holdActive = false;
+// ============================================================
+// メトロノーム
+// ============================================================
+let audioCtx = null;
+let metroBpm = 15;          // 呼吸数/分
+let metroOn  = false;       // 練習中ON/OFF
+let metroTimerId = null;    // setInterval ID
+let metroBeat = 0;          // ビートカウンタ（ビジュアル用）
+let metroMuted = false;     // 息止め中はミュート
 
-// ベースライン収集（起動直後の数秒）
-let baselineFrames = 0;
-const BASELINE_REQUIRED = SAMPLE_HZ * 3; // 3秒
+const METRO_BEATS_VIS = 8;  // ビジュアルのドット数
 
-// TTS
-let speakBusy = false;
-let lastSpokenPhase = null;
-
-// ===================================================
-// UI要素
-// ===================================================
-const phaseText   = document.getElementById('phaseText');
-const phaseEmoji  = document.getElementById('phaseEmoji');
-const holdTimer   = document.getElementById('holdTimer');
-const holdTimerLabel = document.getElementById('holdTimerLabel');
-const waveDot     = document.getElementById('waveDot');
-const statBest    = document.getElementById('statBest');
-const statCount   = document.getElementById('statCount');
-const statAvg     = document.getElementById('statAvg');
-const btnStart    = document.getElementById('btnStart');
-const btnStop     = document.getElementById('btnStop');
-const scaleSlider = document.getElementById('scaleSlider');
-const scaleVal    = document.getElementById('scaleVal');
-const canvas      = document.getElementById('waveCanvas');
-const ctx         = canvas.getContext('2d');
-
-// 周期ドット
-const dots = Array.from({length: 6}, (_, i) => document.getElementById(`dot${i}`));
-
-// ===================================================
-// スケールスライダー
-// ===================================================
-function updateScaleLabel(v) {
-  const labels = {1:'最大',3:'大',5:'標準',8:'小',12:'極小',20:'最小'};
-  // 最も近いラベルを探す
-  let closest = '標準';
-  let minDiff = 999;
-  for (const [k, l] of Object.entries(labels)) {
-    const d = Math.abs(v - Number(k));
-    if (d < minDiff) { minDiff = d; closest = l; }
-  }
-  scaleVal.textContent = closest;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
 }
-scaleSlider.addEventListener('input', () => {
-  st.scaleGain = parseInt(scaleSlider.value);
-  updateScaleLabel(st.scaleGain);
+
+function playClick(freq=440, dur=0.06, vol=0.4) {
+  if (metroMuted) return;
+  try {
+    const ac = getAudioCtx();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(vol, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+    osc.start(ac.currentTime);
+    osc.stop(ac.currentTime + dur);
+  } catch(e){}
+}
+
+function startMetronome(forTest=false) {
+  stopMetronome();
+  if (!forTest && !metroOn) return;
+  const intervalMs = (60 / metroBpm) * 1000;
+  // 吸気=高音、呼気=低音（1ビートごとに切り替え）
+  let isInhale = true;
+  metroBeat = 0;
+
+  metroTimerId = setInterval(() => {
+    if (!metroMuted) {
+      playClick(isInhale ? 660 : 440, 0.08, isInhale ? 0.5 : 0.35);
+    }
+    flashMetroBeat(isInhale);
+    isInhale = !isInhale;
+    metroBeat = (metroBeat + 1) % METRO_BEATS_VIS;
+  }, intervalMs);
+}
+
+function stopMetronome() {
+  if (metroTimerId) { clearInterval(metroTimerId); metroTimerId = null; }
+}
+
+function flashMetroBeat(isInhale) {
+  // 練習ページのビジュアル
+  const mainBeats = document.querySelectorAll('#metroVisualMain .metro-beat');
+  mainBeats.forEach((b,i) => {
+    b.classList.toggle('active', i === metroBeat % mainBeats.length);
+  });
+  // BPMページのビジュアル
+  const bpmBeats = document.querySelectorAll('#metroVisualBpm .metro-beat');
+  bpmBeats.forEach((b,i) => {
+    b.classList.toggle('active', i === metroBeat % bpmBeats.length);
+  });
+}
+
+// BPMスライダー
+const bpmSlider   = document.getElementById('bpmSlider');
+const metroBpmDisp= document.getElementById('metroBpmDisp');
+const metroTogSub = document.getElementById('metroToggleSub');
+
+function updateMetroBpmUI(v) {
+  metroBpm = v;
+  bpmSlider.value = v;
+  metroBpmDisp.textContent = v;
+  metroTogSub.textContent = `${v} BPM`;
+}
+updateMetroBpmUI(15);
+
+bpmSlider.addEventListener('input', () => {
+  updateMetroBpmUI(parseInt(bpmSlider.value));
+  if (metroTimerId) startMetronome(true); // テスト中なら再起動
 });
+document.getElementById('bpmUp').addEventListener('click', () => {
+  if (metroBpm < 40) { updateMetroBpmUI(metroBpm+1); if(metroTimerId) startMetronome(true); }
+});
+document.getElementById('bpmDown').addEventListener('click', () => {
+  if (metroBpm > 4) { updateMetroBpmUI(metroBpm-1); if(metroTimerId) startMetronome(true); }
+});
+
+document.getElementById('btnMetroTest').addEventListener('click', () => {
+  getAudioCtx().resume();
+  startMetronome(true);
+});
+document.getElementById('btnMetroStop').addEventListener('click', () => {
+  stopMetronome();
+  document.querySelectorAll('.metro-beat').forEach(b => b.classList.remove('active'));
+});
+
+// メトロノームトグル（練習ページ）
+const metroToggle = document.getElementById('metroToggle');
+metroToggle.addEventListener('click', () => {
+  metroOn = !metroOn;
+  metroToggle.classList.toggle('on', metroOn);
+  if (st.running) {
+    if (metroOn) { getAudioCtx().resume(); startMetronome(); }
+    else stopMetronome();
+  }
+});
+
+// ============================================================
+// BPM計測
+// ============================================================
+let inhaleTimes = [], exhaleTimes = [];
+
+function updateTapUI() {
+  document.getElementById('inhaleCount').textContent = `${inhaleTimes.length}/2 回`;
+  document.getElementById('exhaleCount').textContent = `${exhaleTimes.length}/2 回`;
+
+  let guide = '吸気・呼気ボタンをそれぞれ2回ずつタップしてください';
+  if (inhaleTimes.length === 0 && exhaleTimes.length === 0) {
+    guide = '吸気のタイミングで「吸気」を2回タップしてください';
+  } else if (inhaleTimes.length === 1) {
+    guide = '次の吸気のタイミングで「吸気」をもう1回タップ';
+  } else if (exhaleTimes.length === 0) {
+    guide = '呼気のタイミングで「呼気」を2回タップしてください';
+  } else if (exhaleTimes.length === 1) {
+    guide = '次の呼気のタイミングで「呼気」をもう1回タップ';
+  }
+  document.getElementById('tapGuide').textContent = guide;
+
+  // 結果計算
+  let inhaleDur = null, exhaleDur = null, cycleSec = null;
+  if (inhaleTimes.length >= 2) {
+    inhaleDur = (inhaleTimes[1] - inhaleTimes[0]) / 1000;
+    document.getElementById('inhaleDur').textContent = inhaleDur.toFixed(2);
+  }
+  if (exhaleTimes.length >= 2) {
+    exhaleDur = (exhaleTimes[1] - exhaleTimes[0]) / 1000;
+    document.getElementById('exhaleDur').textContent = exhaleDur.toFixed(2);
+  }
+  if (inhaleDur !== null && exhaleDur !== null) {
+    cycleSec = inhaleDur + exhaleDur;
+    const bpm = Math.round(60 / cycleSec * 10) / 10;
+    document.getElementById('measuredBpm').textContent = bpm.toFixed(1);
+    document.getElementById('applyBpm').disabled = false;
+    document.getElementById('tapGuide').textContent = `✅ BPM: ${bpm.toFixed(1)}（周期 ${cycleSec.toFixed(2)}秒）`;
+    document.getElementById('applyBpm').dataset.bpm = Math.max(4, Math.min(40, Math.round(bpm)));
+  }
+}
+
+document.getElementById('tapInhale').addEventListener('click', () => {
+  if (inhaleTimes.length < 2) { inhaleTimes.push(Date.now()); updateTapUI(); }
+});
+document.getElementById('tapExhale').addEventListener('click', () => {
+  if (exhaleTimes.length < 2) { exhaleTimes.push(Date.now()); updateTapUI(); }
+});
+document.getElementById('resetTap').addEventListener('click', () => {
+  inhaleTimes = []; exhaleTimes = [];
+  document.getElementById('inhaleDur').textContent = '--';
+  document.getElementById('exhaleDur').textContent = '--';
+  document.getElementById('measuredBpm').textContent = '--';
+  document.getElementById('applyBpm').disabled = true;
+  updateTapUI();
+});
+document.getElementById('applyBpm').addEventListener('click', () => {
+  const v = parseInt(document.getElementById('applyBpm').dataset.bpm || '15');
+  updateMetroBpmUI(v);
+  if (metroTimerId) startMetronome(true);
+  // BPMタブのガイドを更新
+  document.getElementById('tapGuide').textContent += ' → メトロノームに適用しました！';
+});
+
+// ============================================================
+// タブ切り替え
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('page-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'log') renderLogPage();
+  });
+});
+
+// ============================================================
+// スケールスライダー
+// ============================================================
+const scaleSlider = document.getElementById('scaleSlider');
+const scaleValEl  = document.getElementById('scaleVal');
+function updateScaleLabel(v) {
+  const map=[[1,'最大'],[3,'大'],[5,'標準'],[10,'小'],[20,'最小']];
+  let best='標準', minD=999;
+  map.forEach(([k,l])=>{ const d=Math.abs(v-k); if(d<minD){minD=d;best=l;} });
+  scaleValEl.textContent = best;
+}
+scaleSlider.addEventListener('input', () => { st.scaleGain=parseInt(scaleSlider.value); updateScaleLabel(st.scaleGain); });
 updateScaleLabel(5);
 
-// ===================================================
+// ============================================================
 // TTS
-// ===================================================
+// ============================================================
 function speak(text) {
   if (!window.speechSynthesis || speakBusy) return;
   speakBusy = true;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'ja-JP'; u.rate = 0.9;
-  u.onend = u.onerror = () => { speakBusy = false; };
+  u.lang='ja-JP'; u.rate=0.9;
+  u.onend = u.onerror = () => { speakBusy=false; };
   speechSynthesis.speak(u);
 }
 
-// ===================================================
-// 周期ドット更新
-// ===================================================
+// ============================================================
+// 周期ドット
+// ============================================================
+const dots = Array.from({length:6},(_,i)=>document.getElementById(`dot${i}`));
 function updateDots(n) {
-  // n: 完了済みサイクル数（0〜6）
-  dots.forEach((d, i) => {
-    d.classList.remove('done', 'current');
-    if (i < n) d.classList.add('done');
-    else if (i === n && n < TARGET_CYCLES) d.classList.add('current');
+  dots.forEach((d,i) => {
+    d.classList.remove('done','current');
+    if (i<n) d.classList.add('done');
+    else if (i===n && n<TARGET_CYCLES) d.classList.add('current');
   });
 }
 
-// ===================================================
+// ============================================================
 // フェーズ制御
-// ===================================================
+// ============================================================
 function setPhase(p) {
-  if (st.phase === p) return;
+  if (st.phase===p) return;
   const prev = st.phase;
   st.phase = p;
 
-  // 息止め終了
-  if (prev === 'hold' && p !== 'hold' && st.holdStart !== null) {
-    const dur = (Date.now() - st.holdStart) / 1000;
-    if (dur >= 0.5) {
-      st.holdCount++;
-      st.totalHold += dur;
-      if (st.bestHold === null || dur > st.bestHold) st.bestHold = dur;
+  if (prev==='hold' && p!=='hold' && st.holdStart!==null) {
+    const dur = (Date.now()-st.holdStart)/1000;
+    if (dur>=0.5) {
+      const endSec=(Date.now()-st.sessionStartTime)/1000;
+      holdLog.push({index:st.holdCount+1, startSec:endSec-dur, endSec, dur, startIdx:curHoldStartIdx, endIdx:logLen-1});
+      st.holdCount++; st.totalHold+=dur;
+      if (st.bestHold===null||dur>st.bestHold) st.bestHold=dur;
       updateStats();
     }
-    st.holdStart = null;
+    st.holdStart=null; curHoldStartIdx=null;
+    // 息止め解除 → メトロノーム再開
+    metroMuted = false;
+    if (metroOn && metroTimerId===null) startMetronome();
+    else if (metroOn) {} // already running
   }
-  if (p === 'hold' && st.holdStart === null) {
-    st.holdStart = Date.now();
+  if (p==='hold' && st.holdStart===null) {
+    st.holdStart=Date.now(); curHoldStartIdx=logLen;
+    // 息止め開始 → メトロノームをミュート
+    metroMuted = true;
   }
 
-  const cfg = {
-    idle:   { text: '待機中',     emoji: '😴', cls: 'idle'   },
-    detect: { text: '計測中...',  emoji: '🔍', cls: 'detect' },
-    breath: { text: '呼吸中',     emoji: '🌊', cls: 'breath' },
-    hold:   { text: '止めて！',   emoji: '✋', cls: 'hold'   },
+  const cfg={
+    idle:  {text:'待機中',   emoji:'😴',cls:'idle'  },
+    detect:{text:'計測中...', emoji:'🔍',cls:'detect'},
+    breath:{text:'呼吸中',   emoji:'🌊',cls:'breath'},
+    hold:  {text:'止めて！', emoji:'✋',cls:'hold'  },
   }[p];
-  phaseText.textContent = cfg.text;
-  phaseText.className = `phase-text ${cfg.cls}`;
-  phaseEmoji.textContent = cfg.emoji;
+  document.getElementById('phaseText').textContent = cfg.text;
+  document.getElementById('phaseText').className = `phase-text ${cfg.cls}`;
+  document.getElementById('phaseEmoji').textContent = cfg.emoji;
 
-  const speechMap = { breath: '呼吸を続けてください', hold: '止めてください' };
-  if (speechMap[p] && p !== lastSpokenPhase) {
-    speak(speechMap[p]);
-    lastSpokenPhase = p;
-  }
-  if (p === 'idle' || p === 'detect') lastSpokenPhase = null;
+  const sm={breath:'呼吸を続けてください', hold:'止めてください'};
+  if (sm[p]&&p!==lastSpoken){speak(sm[p]); lastSpoken=p;}
+  if (p==='idle'||p==='detect') lastSpoken=null;
 }
 
 function updateStats() {
-  statCount.textContent = st.holdCount;
-  if (st.bestHold !== null) statBest.textContent = st.bestHold.toFixed(1);
-  if (st.holdCount > 0) statAvg.textContent = (st.totalHold / st.holdCount).toFixed(1);
+  document.getElementById('statCount').textContent = st.holdCount;
+  if (st.bestHold!==null) document.getElementById('statBest').textContent=st.bestHold.toFixed(1);
+  if (st.holdCount>0) document.getElementById('statAvg').textContent=(st.totalHold/st.holdCount).toFixed(1);
 }
 
-// ===================================================
-// センサーイベント処理
-// ===================================================
+// ============================================================
+// センサー処理
+// ============================================================
 function onMotion(e) {
   if (!st.running) return;
-  const acc = e.accelerationIncludingGravity || e.acceleration;
+  const acc=e.accelerationIncludingGravity||e.acceleration;
   if (!acc) return;
+  frameCnt++;
+  const filtered = hp(lp(acc.z??0));
 
-  rawZ = acc.z ?? 0;
-  framesSinceStart++;
+  rtBuf[rtHead]=filtered; rtHead=(rtHead+1)%RT_BUF_LEN;
+  if (logLen<MAX_LOG_LEN){ logBuf[logLen]=filtered; logTs[logLen]=Date.now()-st.sessionStartTime; logLen++; }
 
-  // --- ローパスフィルタ（ノイズ除去）---
-  lpZ = LP_ALPHA * rawZ + (1 - LP_ALPHA) * lpPrev;
-  lpPrev = lpZ;
-
-  // --- ハイパスフィルタ（重力・DCオフセット除去）---
-  hpZ = HP_ALPHA * (hpPrev + lpZ - lpPrev);
-  // 注意：lpPrevはすでに更新済みなのでlpZ_prevを別途保持
-  // 正確なHPF実装：
-  // hpZ[n] = alpha * (hpZ[n-1] + x[n] - x[n-1])
-  // ここではlpZを入力とする
-  hpPrev = hpZ;
-
-  // 波形バッファへ
-  waveBuffer[waveHead] = hpZ;
-  waveHead = (waveHead + 1) % BUFFER_LEN;
-
-  // ベースライン収集中
-  if (baselineFrames < BASELINE_REQUIRED) {
-    baselineFrames++;
-    if (baselineFrames === BASELINE_REQUIRED) {
+  if (baseFrm<BASELINE_REQ) {
+    baseFrm++;
+    if (baseFrm===BASELINE_REQ) {
       setPhase('breath');
-      // 周期カウントリセット
-      zeroCrossCount = 0;
-      st.cycleCount = 0;
-      prevSign = Math.sign(hpZ);
+      zcCount=0; st.cycleCount=0; prevSign=Math.sign(filtered);
       updateDots(0);
       speak('呼吸を始めてください。6回呼吸したら止めます。');
+      // メトロノーム開始
+      if (metroOn) { getAudioCtx().resume(); metroMuted=false; startMetronome(); }
     }
     return;
   }
 
-  // === 呼吸中フェーズのみ周期カウント ===
-  if (st.phase === 'breath') {
-    const curSign = hpZ > 0 ? 1 : (hpZ < 0 ? -1 : 0);
-
-    // ゼロクロス検出（負→正：吸気開始、正→負：呼気開始）
-    if (curSign !== 0 && prevSign !== 0 && curSign !== prevSign) {
-      const framesSinceLastCross = framesSinceStart - lastZeroCrossFrame;
-      if (framesSinceLastCross > MIN_ZERO_CROSS_INTERVAL) {
-        zeroCrossCount++;
-        lastZeroCrossFrame = framesSinceStart;
-
-        // ゼロクロス2回 = 1周期
-        if (zeroCrossCount % 2 === 0) {
-          st.cycleCount++;
-          updateDots(st.cycleCount);
-
-          if (st.cycleCount < TARGET_CYCLES) {
-            // 残りサイクルをアナウンス
-            const remaining = TARGET_CYCLES - st.cycleCount;
-            if (remaining <= 2) speak(`あと${remaining}回`);
-          } else {
-            // 6周期完了 → 次の呼気谷（負→正クロス）で止める
-            // ここでは即座に合図（次の呼気タイミング）
-            triggerHold();
-          }
+  if (st.phase==='breath') {
+    const cs=filtered>0.005?1:(filtered<-0.005?-1:0);
+    if (cs!==0&&prevSign!==0&&cs!==prevSign) {
+      const iv=frameCnt-lastZC;
+      if (iv>MIN_ZC_INTERVAL) {
+        zcCount++; lastZC=frameCnt;
+        if (zcCount%2===0) {
+          st.cycleCount++; updateDots(st.cycleCount);
+          const rem=TARGET_CYCLES-st.cycleCount;
+          if (rem>0&&rem<=2) speak(`あと${rem}回`);
+          else if (rem===0) triggerHold();
         }
       }
     }
-    if (curSign !== 0) prevSign = curSign;
-
-    // 息止め判定（動きが止まったか）
-    const motionMag = Math.abs(hpZ);
-    if (motionMag < 0.02) {
-      stillFrames++;
-    } else {
-      stillFrames = 0;
-    }
+    if (cs!==0) prevSign=cs;
   }
 
-  // 息止め中：動き再開を検出して解除
-  if (st.phase === 'hold') {
-    const motionMag = Math.abs(hpZ);
-    if (motionMag > 0.04) {
-      // 息止め解除→再度カウントへ
-      st.cycleCount = 0;
-      zeroCrossCount = 0;
-      prevSign = Math.sign(hpZ);
-      stillFrames = 0;
-      updateDots(0);
-      setPhase('breath');
+  if (st.phase==='hold') {
+    if (Math.abs(filtered)>0.04) {
+      st.cycleCount=0; zcCount=0; prevSign=Math.sign(filtered);
+      updateDots(0); setPhase('breath');
       speak('息を吸ってください。また6回呼吸します。');
     }
   }
 }
 
 function triggerHold() {
-  speak('止めてください');
-  lastSpokenPhase = 'hold';
-  setPhase('hold');
-  stillFrames = 0;
-  updateDots(TARGET_CYCLES);
+  speak('止めてください'); lastSpoken='hold';
+  setPhase('hold'); updateDots(TARGET_CYCLES);
 }
 
-// ===================================================
-// ハイパスフィルタ（正確な実装）
-// ===================================================
-let hpX_prev = 0;   // 入力の前の値
-let hpY_prev = 0;   // 出力の前の値
+// ============================================================
+// リアルタイム波形描画
+// ============================================================
+let rafId=null;
+const rtCanvas=document.getElementById('waveCanvas');
+const rtCtx=rtCanvas.getContext('2d');
 
-function highpass(x) {
-  const y = HP_ALPHA * (hpY_prev + x - hpX_prev);
-  hpX_prev = x;
-  hpY_prev = y;
-  return y;
+function resizeRt() {
+  const pr=window.devicePixelRatio||1;
+  const w=rtCanvas.parentElement.clientWidth-32;
+  rtCanvas.width=w*pr; rtCanvas.height=120*pr;
+  rtCanvas.style.width=w+'px'; rtCanvas.style.height='120px';
 }
 
-let lpX_prev = 0;
-function lowpass(x) {
-  const y = LP_ALPHA * x + (1 - LP_ALPHA) * lpX_prev;
-  lpX_prev = y;
-  return y;
-}
-
-// onMotionを正しいフィルタ実装で上書き
-function onMotionFiltered(e) {
-  if (!st.running) return;
-  const acc = e.accelerationIncludingGravity || e.acceleration;
-  if (!acc) return;
-
-  rawZ = acc.z ?? 0;
-  framesSinceStart++;
-
-  // ローパス → ハイパスの順でフィルタ
-  const lp = lowpass(rawZ);
-  const hp = highpass(lp);
-
-  // 波形バッファ
-  waveBuffer[waveHead] = hp;
-  waveHead = (waveHead + 1) % BUFFER_LEN;
-
-  // ベースライン収集中
-  if (baselineFrames < BASELINE_REQUIRED) {
-    baselineFrames++;
-    if (baselineFrames === BASELINE_REQUIRED) {
-      setPhase('breath');
-      zeroCrossCount = 0;
-      st.cycleCount = 0;
-      prevSign = Math.sign(hp);
-      updateDots(0);
-      speak('呼吸を始めてください。6回呼吸したら止めます。');
-    }
-    return;
+function drawRt() {
+  resizeRt();
+  const W=rtCanvas.width, H=rtCanvas.height;
+  rtCtx.clearRect(0,0,W,H);
+  [0.25,0.5,0.75].forEach(r=>{ rtCtx.strokeStyle='rgba(79,195,247,0.08)'; rtCtx.lineWidth=1; rtCtx.beginPath(); rtCtx.moveTo(0,H*r); rtCtx.lineTo(W,H*r); rtCtx.stroke(); });
+  const scY=(H/2)/(0.1/st.scaleGain*10);
+  const isHold=st.phase==='hold';
+  const grad=rtCtx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,isHold?'#66bb6a':'#4fc3f7');
+  grad.addColorStop(1,isHold?'#2e7d32':'#0077b6');
+  rtCtx.beginPath(); rtCtx.strokeStyle=grad; rtCtx.lineWidth=2.5*(window.devicePixelRatio||1); rtCtx.lineJoin='round'; rtCtx.lineCap='round';
+  for(let i=0;i<RT_BUF_LEN;i++){
+    const idx=(rtHead+i)%RT_BUF_LEN;
+    const x=(i/(RT_BUF_LEN-1))*W, y=H/2-rtBuf[idx]*scY;
+    i===0?rtCtx.moveTo(x,y):rtCtx.lineTo(x,y);
   }
-
-  if (st.phase === 'breath') {
-    const curSign = hp > 0.005 ? 1 : (hp < -0.005 ? -1 : 0); // デッドゾーン
-    if (curSign !== 0 && prevSign !== 0 && curSign !== prevSign) {
-      const interval = framesSinceStart - lastZeroCrossFrame;
-      if (interval > MIN_ZERO_CROSS_INTERVAL) {
-        zeroCrossCount++;
-        lastZeroCrossFrame = framesSinceStart;
-
-        if (zeroCrossCount % 2 === 0) {
-          st.cycleCount++;
-          updateDots(st.cycleCount);
-          const remaining = TARGET_CYCLES - st.cycleCount;
-          if (remaining > 0 && remaining <= 2) {
-            speak(`あと${remaining}回`);
-          } else if (remaining === 0) {
-            triggerHold();
-          }
-        }
-      }
-    }
-    if (curSign !== 0) prevSign = curSign;
-  }
-
-  if (st.phase === 'hold') {
-    const mag = Math.abs(hp);
-    if (mag > 0.04) {
-      st.cycleCount = 0;
-      zeroCrossCount = 0;
-      prevSign = Math.sign(hp);
-      stillFrames = 0;
-      updateDots(0);
-      setPhase('breath');
-      speak('息を吸ってください。また6回呼吸します。');
-    }
-  }
-}
-
-// ===================================================
-// 波形描画
-// ===================================================
-let rafId = null;
-
-function resizeCanvas() {
-  const pr = window.devicePixelRatio || 1;
-  const w = canvas.parentElement.clientWidth - 28;
-  canvas.width = w * pr;
-  canvas.height = 140 * pr;
-  canvas.style.width = w + 'px';
-  canvas.style.height = '140px';
-}
-
-function drawWave() {
-  resizeCanvas();
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-
-  // グリッド線（中心±振幅目安）
-  ctx.strokeStyle = 'rgba(79,195,247,0.08)';
-  ctx.lineWidth = 1;
-  [0.25, 0.5, 0.75].forEach(r => {
-    const y = H * r;
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  });
-
-  // 波形
-  const scaleY = (H / 2) / (0.1 / st.scaleGain * 10); // スケール調整
-  const isHold = st.phase === 'hold';
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, isHold ? '#66bb6a' : '#4fc3f7');
-  grad.addColorStop(1, isHold ? '#2e7d32' : '#0077b6');
-
-  ctx.beginPath();
-  ctx.strokeStyle = grad;
-  ctx.lineWidth = 2.5 * (window.devicePixelRatio || 1);
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-
-  for (let i = 0; i < BUFFER_LEN; i++) {
-    const idx = (waveHead + i) % BUFFER_LEN;
-    const x = (i / (BUFFER_LEN - 1)) * W;
-    const y = H / 2 - waveBuffer[idx] * scaleY;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // 中心線
-  ctx.strokeStyle = 'rgba(79,195,247,0.18)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([4, 6]);
-  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-  ctx.setLineDash([]);
+  rtCtx.stroke();
+  rtCtx.strokeStyle='rgba(79,195,247,0.18)'; rtCtx.lineWidth=1; rtCtx.setLineDash([4,6]);
+  rtCtx.beginPath(); rtCtx.moveTo(0,H/2); rtCtx.lineTo(W,H/2); rtCtx.stroke(); rtCtx.setLineDash([]);
 }
 
 function loop() {
-  // ホールドタイマー更新
-  if (st.phase === 'hold' && st.holdStart) {
-    const el = (Date.now() - st.holdStart) / 1000;
-    holdTimer.style.display = '';
-    holdTimer.textContent = el.toFixed(1);
-    holdTimerLabel.textContent = '息止め継続中';
+  if (st.phase==='hold'&&st.holdStart) {
+    const el=(Date.now()-st.holdStart)/1000;
+    document.getElementById('holdTimer').style.display='';
+    document.getElementById('holdTimer').textContent=el.toFixed(1);
+    document.getElementById('holdTimerLabel').textContent='息止め継続中';
   } else {
-    holdTimer.style.display = 'none';
-    holdTimerLabel.textContent = '';
+    document.getElementById('holdTimer').style.display='none';
+    document.getElementById('holdTimerLabel').textContent='';
   }
-  drawWave();
-  rafId = requestAnimationFrame(loop);
+  drawRt();
+  rafId=requestAnimationFrame(loop);
 }
 
-// ===================================================
+// ============================================================
+// ログ描画
+// ============================================================
+const PX_PER_SEC=40, LOG_H=160;
+const logCanvas=document.getElementById('logCanvas');
+const logCtx=logCanvas.getContext('2d');
+
+function renderLogPage(){ renderLogWave(); renderHoldList(); }
+
+function renderLogWave() {
+  if (logLen===0) {
+    logCanvas.width=logWaveWrap.clientWidth||300; logCanvas.height=LOG_H;
+    logCtx.fillStyle='#0d1b2a'; logCtx.fillRect(0,0,logCanvas.width,LOG_H);
+    logCtx.fillStyle='#7fa8c9'; logCtx.font='13px sans-serif'; logCtx.textAlign='center';
+    logCtx.fillText('セッションデータなし',logCanvas.width/2,LOG_H/2); return;
+  }
+  const pr=window.devicePixelRatio||1;
+  const totalSec=logTs[logLen-1]/1000;
+  const cW=Math.max(document.getElementById('logWaveWrap').clientWidth, Math.ceil(totalSec*PX_PER_SEC));
+  logCanvas.width=cW*pr; logCanvas.height=LOG_H*pr;
+  logCanvas.style.width=cW+'px'; logCanvas.style.height=LOG_H+'px';
+  logCtx.scale(pr,pr);
+  const W=cW,H=LOG_H;
+  logCtx.fillStyle='#0d1b2a'; logCtx.fillRect(0,0,W,H);
+  logCtx.strokeStyle='rgba(79,195,247,0.07)'; logCtx.lineWidth=1;
+  for(let s=0;s<=totalSec;s++){const x=s*PX_PER_SEC; logCtx.beginPath(); logCtx.moveTo(x,0); logCtx.lineTo(x,H); logCtx.stroke();}
+  logCtx.strokeStyle='rgba(79,195,247,0.15)'; logCtx.setLineDash([4,6]);
+  logCtx.beginPath(); logCtx.moveTo(0,H/2); logCtx.lineTo(W,H/2); logCtx.stroke(); logCtx.setLineDash([]);
+  holdLog.forEach(h=>{
+    const x1=(h.startSec/totalSec)*W, x2=(h.endSec/totalSec)*W;
+    logCtx.fillStyle='rgba(102,187,106,0.12)'; logCtx.fillRect(x1,0,x2-x1,H);
+    logCtx.fillStyle='rgba(102,187,106,0.6)'; logCtx.fillRect(x1,0,2,H); logCtx.fillRect(x2,0,2,H);
+    logCtx.fillStyle='#66bb6a'; logCtx.font='bold 11px sans-serif'; logCtx.textAlign='center';
+    logCtx.fillText(`${h.dur.toFixed(1)}s`,(x1+x2)/2,14);
+  });
+  const scY=(H/2)/(0.1/st.scaleGain*10);
+  logCtx.beginPath(); logCtx.strokeStyle='#4fc3f7'; logCtx.lineWidth=1.5; logCtx.lineJoin='round';
+  for(let i=0;i<logLen;i++){
+    const x=(logTs[i]/1000/totalSec)*W, y=H/2-logBuf[i]*scY;
+    i===0?logCtx.moveTo(x,y):logCtx.lineTo(x,y);
+  }
+  logCtx.stroke();
+  logCtx.fillStyle='#7fa8c9'; logCtx.font='10px DM Mono,monospace'; logCtx.textAlign='center';
+  for(let s=0;s<=totalSec;s+=5) logCtx.fillText(fmtSec(s),s*PX_PER_SEC,H-4);
+  document.getElementById('logDuration').textContent=`総時間 ${fmtSec(Math.round(totalSec))}`;
+}
+
+function renderHoldList() {
+  const btnCW=document.getElementById('btnCsvWave');
+  const btnCH=document.getElementById('btnCsvHold');
+  btnCW.disabled=logLen===0; btnCH.disabled=holdLog.length===0;
+  if (holdLog.length===0){
+    document.getElementById('holdList').innerHTML='<div class="empty-log">息止めの記録がありません</div>'; return;
+  }
+  document.getElementById('holdList').innerHTML=holdLog.map(h=>`
+    <div class="hold-item">
+      <div class="hold-num">${h.index}</div>
+      <div>
+        <div class="hold-dur">${h.dur.toFixed(2)}<span>秒</span></div>
+        <div class="hold-time">${fmtSec(h.startSec)} 〜 ${fmtSec(h.endSec)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function fmtSec(s){
+  const m=Math.floor(s/60), sec=(s%60).toFixed(0).padStart(2,'0');
+  return m>0?`${m}:${sec}`:`${Math.round(s)}s`;
+}
+
+// CSVダウンロード
+document.getElementById('btnCsvWave').addEventListener('click',()=>{
+  if(logLen===0)return;
+  let csv='time_ms,value\n';
+  for(let i=0;i<logLen;i++) csv+=`${logTs[i]},${logBuf[i].toFixed(6)}\n`;
+  dlCsv(csv,'breath_wave.csv');
+});
+document.getElementById('btnCsvHold').addEventListener('click',()=>{
+  if(!holdLog.length)return;
+  let csv='index,start_sec,end_sec,duration_sec\n';
+  holdLog.forEach(h=>{ csv+=`${h.index},${h.startSec.toFixed(3)},${h.endSec.toFixed(3)},${h.dur.toFixed(3)}\n`; });
+  dlCsv(csv,'hold_log.csv');
+});
+function dlCsv(content,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:'text/csv'}));
+  a.download=name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+const logWaveWrap=document.getElementById('logWaveWrap');
+
+// ============================================================
 // 開始・停止
-// ===================================================
+// ============================================================
 function startSession() {
-  // 全リセット
-  waveBuffer.fill(0); waveHead = 0;
-  rawZ = lpZ = hpZ = hpPrev = lpPrev = 0;
-  hpX_prev = hpY_prev = lpX_prev = 0;
-  prevSign = 0;
-  zeroCrossCount = 0; lastZeroCrossFrame = -999;
-  framesSinceStart = 0;
-  stillFrames = 0;
-  baselineFrames = 0;
-  st.holdStart = null;
-  st.cycleCount = 0;
-  lastSpokenPhase = null;
-  speakBusy = false;
-  updateDots(0);
+  rtBuf.fill(0); rtHead=0;
+  logBuf=new Float32Array(MAX_LOG_LEN); logLen=0; logTs=[];
+  holdLog=[]; curHoldStartIdx=null;
+  hpX=hpY=lpX=0;
+  zcCount=0; lastZC=-999; prevSign=0;
+  frameCnt=0; baseFrm=0;
+  st.holdStart=null; st.cycleCount=0;
+  st.holdCount=0; st.totalHold=0; st.bestHold=null;
+  st.sessionStartTime=Date.now();
+  lastSpoken=null; speakBusy=false;
+  metroMuted=false;
+  updateDots(0); updateStats();
+  document.getElementById('btnCsvWave').disabled=true;
+  document.getElementById('btnCsvHold').disabled=true;
+  document.getElementById('holdList').innerHTML='<div class="empty-log">セッション中...</div>';
 
-  st.running = true;
-  st.phase = 'detect';
-  phaseText.textContent = '計測中...';
-  phaseText.className = 'phase-text detect';
-  phaseEmoji.textContent = '🔍';
-  waveDot.classList.add('active');
-  btnStart.disabled = true;
-  btnStop.disabled = false;
+  st.running=true; st.phase='detect';
+  document.getElementById('phaseText').textContent='計測中...';
+  document.getElementById('phaseText').className='phase-text detect';
+  document.getElementById('phaseEmoji').textContent='🔍';
+  document.getElementById('waveDot').classList.add('active');
+  document.getElementById('btnStart').disabled=true;
+  document.getElementById('btnStop').disabled=false;
 
-  window.addEventListener('devicemotion', onMotionFiltered);
+  // メトロノームビジュアル表示
+  document.getElementById('metroVisualMain').style.display = metroOn ? 'flex' : 'none';
+
+  window.addEventListener('devicemotion', onMotion);
   loop();
   speak('センサーを起動します。スマートフォンをお腹の上に置いて静かにしてください。');
 }
 
 function stopSession() {
-  st.running = false;
-  window.removeEventListener('devicemotion', onMotionFiltered);
+  st.running=false;
+  window.removeEventListener('devicemotion', onMotion);
+  stopMetronome();
+  metroMuted=false;
+  document.querySelectorAll('.metro-beat').forEach(b=>b.classList.remove('active'));
+  if (st.phase==='hold'&&st.holdStart!==null) {
+    const dur=(Date.now()-st.holdStart)/1000;
+    if (dur>=0.5){
+      const endSec=(Date.now()-st.sessionStartTime)/1000;
+      holdLog.push({index:st.holdCount+1,startSec:endSec-dur,endSec,dur,startIdx:curHoldStartIdx,endIdx:logLen-1});
+      st.holdCount++; st.totalHold+=dur;
+      if(st.bestHold===null||dur>st.bestHold)st.bestHold=dur;
+      updateStats();
+    }
+    st.holdStart=null;
+  }
   setPhase('idle');
-  waveDot.classList.remove('active');
-  btnStart.disabled = false;
-  btnStop.disabled = true;
+  document.getElementById('waveDot').classList.remove('active');
+  document.getElementById('btnStart').disabled=false;
+  document.getElementById('btnStop').disabled=true;
+  document.getElementById('metroVisualMain').style.display='none';
   updateDots(0);
-  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
   speak('セッションを終了します');
+  renderLogPage();
+  document.getElementById('btnCsvWave').disabled=logLen===0;
+  document.getElementById('btnCsvHold').disabled=holdLog.length===0;
 }
 
-btnStart.addEventListener('click', () => {
-  if (typeof DeviceMotionEvent !== 'undefined' &&
-      typeof DeviceMotionEvent.requestPermission === 'function') {
+document.getElementById('btnStart').addEventListener('click',()=>{
+  if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){
     DeviceMotionEvent.requestPermission()
-      .then(p => { if (p === 'granted') startSession(); else alert('センサーの許可が必要です'); })
+      .then(p=>{if(p==='granted')startSession();else alert('センサーの許可が必要です');})
       .catch(console.error);
-  } else {
-    startSession();
-  }
+  } else startSession();
 });
-btnStop.addEventListener('click', stopSession);
+document.getElementById('btnStop').addEventListener('click', stopSession);
 
 // iOS modal
-const iosModal = document.getElementById('iosModal');
-const iosPermBtn = document.getElementById('iosPermBtn');
-if (typeof DeviceMotionEvent !== 'undefined' &&
-    typeof DeviceMotionEvent.requestPermission === 'function') {
+const iosModal=document.getElementById('iosModal');
+if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function')
   iosModal.classList.remove('hidden');
-}
-iosPermBtn.addEventListener('click', () => {
+document.getElementById('iosPermBtn').addEventListener('click',()=>{
   DeviceMotionEvent.requestPermission()
-    .then(() => iosModal.classList.add('hidden'))
-    .catch(() => iosModal.classList.add('hidden'));
+    .then(()=>iosModal.classList.add('hidden'))
+    .catch(()=>iosModal.classList.add('hidden'));
 });
 
-drawWave();
+drawRt();
 </script>
 
 </body>
