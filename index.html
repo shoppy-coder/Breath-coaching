@@ -496,8 +496,8 @@ const SAMPLE_HZ        = 20;
 const RT_BUF_LEN       = 300;
 const MAX_LOG_LEN      = 12000;
 const TARGET_CYCLES    = 6;
-const HP_ALPHA         = 0.97;
-const LP_ALPHA         = 0.25;
+const HP_ALPHA         = 0.90;   // 低めにしてDCオフセットを素早く除去
+const LP_ALPHA         = 0.20;
 const MIN_ZC_INTERVAL  = Math.round(0.5 * SAMPLE_HZ);
 const BASELINE_REQ     = SAMPLE_HZ * 3;
 
@@ -880,7 +880,9 @@ function drawRt() {
   const W=rtCanvas.width, H=rtCanvas.height;
   rtCtx.clearRect(0,0,W,H);
   [0.25,0.5,0.75].forEach(r=>{ rtCtx.strokeStyle='rgba(79,195,247,0.08)'; rtCtx.lineWidth=1; rtCtx.beginPath(); rtCtx.moveTo(0,H*r); rtCtx.lineTo(W,H*r); rtCtx.stroke(); });
-  const scY=(H/2)/(0.1/st.scaleGain*10);
+  // scaleGain 1=表示大 / 20=表示小
+  const scY = (H / 2) / (0.05 + st.scaleGain * 0.04);
+  const pad = 4 * (window.devicePixelRatio || 1);
   const isHold=st.phase==='hold';
   const grad=rtCtx.createLinearGradient(0,0,0,H);
   grad.addColorStop(0,isHold?'#66bb6a':'#4fc3f7');
@@ -888,7 +890,8 @@ function drawRt() {
   rtCtx.beginPath(); rtCtx.strokeStyle=grad; rtCtx.lineWidth=2.5*(window.devicePixelRatio||1); rtCtx.lineJoin='round'; rtCtx.lineCap='round';
   for(let i=0;i<RT_BUF_LEN;i++){
     const idx=(rtHead+i)%RT_BUF_LEN;
-    const x=(i/(RT_BUF_LEN-1))*W, y=H/2-rtBuf[idx]*scY;
+    const x=(i/(RT_BUF_LEN-1))*W;
+    const y=Math.max(pad, Math.min(H-pad, H/2 - rtBuf[idx]*scY));
     i===0?rtCtx.moveTo(x,y):rtCtx.lineTo(x,y);
   }
   rtCtx.stroke();
@@ -945,10 +948,11 @@ function renderLogWave() {
     logCtx.fillStyle='#66bb6a'; logCtx.font='bold 11px sans-serif'; logCtx.textAlign='center';
     logCtx.fillText(`${h.dur.toFixed(1)}s`,(x1+x2)/2,14);
   });
-  const scY=(H/2)/(0.1/st.scaleGain*10);
+  const scY=(H/2)/(0.05+st.scaleGain*0.04);
   logCtx.beginPath(); logCtx.strokeStyle='#4fc3f7'; logCtx.lineWidth=1.5; logCtx.lineJoin='round';
   for(let i=0;i<logLen;i++){
-    const x=(logTs[i]/1000/totalSec)*W, y=H/2-logBuf[i]*scY;
+    const x=(logTs[i]/1000/totalSec)*W;
+    const y=Math.max(2, Math.min(H-2, H/2-logBuf[i]*scY));
     i===0?logCtx.moveTo(x,y):logCtx.lineTo(x,y);
   }
   logCtx.stroke();
@@ -1018,6 +1022,11 @@ function startSession() {
   document.getElementById('btnCsvWave').disabled=true;
   document.getElementById('btnCsvHold').disabled=true;
   document.getElementById('holdList').innerHTML='<div class="empty-log">セッション中...</div>';
+
+  // フィルタをセンサーの現在値でウォームアップ（初期オフセット対策）
+  // onMotionが来る前にlpXをrawZ相当に初期化しておく
+  // → 最初の数サンプルでhpYが素早く0に収束する
+  lpX = 0; hpX = 0; hpY = 0;
 
   st.running=true; st.phase='detect';
   document.getElementById('phaseText').textContent='計測中...';
